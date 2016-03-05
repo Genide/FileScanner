@@ -4,7 +4,7 @@
   "description": "This project will allow you to upload your files onto VirusTotal and retrieve scan results.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha -- -c"
   },
   "author": "Daniel Nguyen",
   "license": "ISC",
@@ -13,6 +13,7 @@
     "grunt": "^0.4.5",
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-contrib-watch": "^0.6.1",
+    "istanbul": "^0.4.2",
     "mocha": "^2.4.5"
   },
   "dependencies": {
