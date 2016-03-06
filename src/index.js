@@ -1,7 +1,9 @@
 var _ = require('lodash');
+var fs = require('fs');
+var request = require('request');
 
-var add = function (num1, num2) {
-	return num1 + num2;
+var scanFile = function (filepath) {
+	return filepath;
 };
 
-exports.add = add;
+exports.scanFile = scanFile;

@@ -11,7 +11,10 @@ module.exports = function (grunt) {
 			all: ['Gruntfile.js', src, test],
 			src: src,
 			test: test,
-			Gruntfile: 'Gruntfile.js'
+			Gruntfile: 'Gruntfile.js',
+			options: {
+				esversion: 6
+			}
 		},
 		watch: {
 			options: {
