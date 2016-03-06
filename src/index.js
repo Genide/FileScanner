@@ -4,32 +4,25 @@ var request = require('request');
 
 var VirusTotal = function (apiKey) {
 	this.apiKey = apiKey;
-	this.fileScanReportURL = 'https://www.virustotal.com/vtapi/v2/file/report'
+	this.fileScanReportURL = 'https://www.virustotal.com/vtapi/v2/file/report';
+	this.urlScanReportURL = 'http://www.virustotal.com/vtapi/v2/url/report';
 
 	var resultRequest = (options, callback) => {
-		//SEE IF THIS responseHandler CAN BE MADE IMMUTABLE AT SOME POINT
-		//SEE IF REQUEST CAN HANDLE DATA
-		var responseHandler = (res) => {
-			if (res.statusCode === 200) {
-				var data = '';
-				res.on('data', (chunk) => {
-					data += chunk;
-				}).on('end', () => {
-					callback(JSON.parse(data));
-				});
+		var requestHandler = (err, res, body) => {
+			if (err) {
+				callback(err);
+			} else if (res.statusCode === 200) {
+				callback(null, JSON.parse(body));
 			} else {
-				console.log('Status code: ' + res.statusCode);
-				console.log('An error has occured');
-				return;
+				callback(res);
 			}
 		};
 
 		request
-			.post(options)
-			.on('response', responseHandler)
-			.on('error', () => {
-				return;
-			});
+			.post(options, requestHandler);
+			// .on('error', () => {     //IS THIS EVENT HANDLER EVEN NECESSARY?
+			// 	return;
+			// });
 	};
 
 	this.getFileScanReport = (resourceID, callback) => {
@@ -43,15 +36,20 @@ var VirusTotal = function (apiKey) {
 		};
 
 		resultRequest(options, callback);
-	}
+	};
+
+	this.getUrlScanReport = (resourceID, callback) => {
+		var param = {
+			resource: resourceID,
+			apikey: this.apiKey
+		};
+		var options = {
+			url: this.urlScanReportURL,
+			form: param
+		};
+
+		resultRequest(options, callback);
+	};
 };
 
-var virustotalObj = new VirusTotal('insert VirusTotal API key');
-
-var printToScreen = (data) => {
-	console.log(data);
-}
-
-virustotalObj.getFileScanReport('99017f6eebbac24f351415dd410d522d', printToScreen);
-
-exports = VirusTotal;
+module.exports = VirusTotal;
