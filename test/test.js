@@ -232,5 +232,26 @@ describe('scanFile', () => {
 
 			virustotalObj.scanFile('test/file_does_not_exist.txt', getError);
 		});
-	})
+	});
+
+	describe('File already queued', () => {
+		before(() => {
+			sinon
+				.stub(request, 'post')
+				.yields(null, {statusCode: 200}, JSON.stringify({response_code: -2}));
+		});
+
+		after(() => {
+			request.post.restore();
+		});
+
+		it('response_code of -2', (done) => {
+			var checkStatusCode = (err, data) => {
+				expect(data.response_code).to.equal(-2);
+				done();
+			};
+
+			virustotalObj.scanFile('test/safe.txt', checkStatusCode);
+		});
+	});
 });

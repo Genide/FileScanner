@@ -40,9 +40,9 @@ var VirusTotal = function (apiKey) {
 		postRequest(options, callback);
 	};
 
-	this.getUrlScanReport = (resourceID, callback) => {
+	this.getUrlScanReport = (url, callback) => {
 		var param = {
-			resource: resourceID,
+			resource: url,
 			apikey: this.apiKey
 		};
 		var options = {
