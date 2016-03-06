@@ -34,7 +34,7 @@ var VirusTotal = function (apiKey) {
 		};
 		var options = {
 			url: this.fileScanReportURL,
-			form: param
+			formData: param
 		};
 
 		postRequest(options, callback);
@@ -47,7 +47,7 @@ var VirusTotal = function (apiKey) {
 		};
 		var options = {
 			url: this.urlScanReportURL,
-			form: param
+			formData: param
 		};
 
 		postRequest(options, callback);

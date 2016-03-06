@@ -6,12 +6,6 @@
             "result": null,
             "update": "20160305"
         },
-        "TotalDefense": {
-            "detected": true,
-            "version": "37.1.62.1",
-            "result": "Win32/ASuspect.HDBBD",
-            "update": "20160306"
-        },
         "MicroWorld-eScan": {
             "detected": true,
             "version": "12.0.250.0",
@@ -36,11 +30,11 @@
             "result": "Trojan.Comame.r3",
             "update": "20160305"
         },
-        "ALYac": {
+        "McAfee": {
             "detected": true,
-            "version": "1.0.1.9",
-            "result": "Generic.Malware.V!w.7232B058",
-            "update": "20160305"
+            "version": "6.0.6.653",
+            "result": "RDN/Generic Qhost",
+            "update": "20160306"
         },
         "Malwarebytes": {
             "detected": true,
@@ -50,7 +44,7 @@
         },
         "Zillya": {
             "detected": true,
-            "version": "2.0.0.2707",
+            "version": "2.0.0.2708",
             "result": "Trojan.VB.Win32.33493",
             "update": "20160306"
         },
@@ -110,7 +104,7 @@
         },
         "ESET-NOD32": {
             "detected": true,
-            "version": "13135",
+            "version": "13136",
             "result": "a variant of Win32/Qhost.Banker.BP",
             "update": "20160306"
         },
@@ -156,11 +150,17 @@
             "result": null,
             "update": "20160306"
         },
+        "ByteHero": {
+            "detected": false,
+            "version": "1.0.0.1",
+            "result": null,
+            "update": "20160307"
+        },
         "Tencent": {
             "detected": true,
             "version": "1.0.0.1",
             "result": "Win32.Trojan.Vb.Hryf",
-            "update": "20160306"
+            "update": "20160307"
         },
         "Ad-Aware": {
             "detected": true,
@@ -176,7 +176,7 @@
         },
         "Comodo": {
             "detected": true,
-            "version": "24450",
+            "version": "24455",
             "result": "Heur.Suspicious",
             "update": "20160306"
         },
@@ -194,7 +194,7 @@
         },
         "VIPRE": {
             "detected": true,
-            "version": "47690",
+            "version": "47696",
             "result": "Trojan.Win32.Generic!BT",
             "update": "20160306"
         },
@@ -264,17 +264,17 @@
             "result": "Generic.Malware.V!w.7232B058",
             "update": "20160306"
         },
-        "ByteHero": {
-            "detected": false,
-            "version": "1.0.0.1",
-            "result": null,
+        "TotalDefense": {
+            "detected": true,
+            "version": "37.1.62.1",
+            "result": "Win32/ASuspect.HDBBD",
             "update": "20160306"
         },
-        "McAfee": {
+        "ALYac": {
             "detected": true,
-            "version": "6.0.6.653",
-            "result": "RDN/Generic Qhost",
-            "update": "20160306"
+            "version": "1.0.1.9",
+            "result": "Generic.Malware.V!w.7232B058",
+            "update": "20160305"
         },
         "AVware": {
             "detected": true,
@@ -286,7 +286,7 @@
             "detected": true,
             "version": "3.12.26.4",
             "result": "SScope.Trojan.VBRA.15773",
-            "update": "20160305"
+            "update": "20160306"
         },
         "Baidu-International": {
             "detected": true,
@@ -334,15 +334,15 @@
             "detected": true,
             "version": "1.0.0.1120",
             "result": "Win32/Trojan.Spy.fd9",
-            "update": "20160306"
+            "update": "20160307"
         }
     },
-    "scan_id": "52d3df0ed60c46f336c131bf2ca454f73bafdc4b04dfa2aea80746f5ba9e6d1c-1457282679",
+    "scan_id": "52d3df0ed60c46f336c131bf2ca454f73bafdc4b04dfa2aea80746f5ba9e6d1c-1457306324",
     "sha1": "4d1740485713a2ab3a4f5822a01f645fe8387f92",
     "resource": "99017f6eebbac24f351415dd410d522d",
     "response_code": 1,
-    "scan_date": "2016-03-06 16:44:39",
-    "permalink": "https://www.virustotal.com/file/52d3df0ed60c46f336c131bf2ca454f73bafdc4b04dfa2aea80746f5ba9e6d1c/analysis/1457282679/",
+    "scan_date": "2016-03-06 23:18:44",
+    "permalink": "https://www.virustotal.com/file/52d3df0ed60c46f336c131bf2ca454f73bafdc4b04dfa2aea80746f5ba9e6d1c/analysis/1457306324/",
     "verbose_msg": "Scan finished, information embedded",
     "total": 56,
     "positives": 50,
