@@ -1,0 +1,5 @@
+{
+    "response_code": 0,
+    "resource": "http://atotallyfakeurllikedonteventry.io",
+    "verbose_msg": "The requested resource is not among the finished, queued or pending scans"
+}

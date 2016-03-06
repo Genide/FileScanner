@@ -1,13 +1,15 @@
 var _ = require('lodash');
 var fs = require('fs');
+var path = require('path');
 var request = require('request');
 
 var VirusTotal = function (apiKey) {
 	this.apiKey = apiKey;
 	this.fileScanReportURL = 'https://www.virustotal.com/vtapi/v2/file/report';
 	this.urlScanReportURL = 'http://www.virustotal.com/vtapi/v2/url/report';
+	this.scanFileURL = 'https://www.virustotal.com/vtapi/v2/file/scan';
 
-	var resultRequest = (options, callback) => {
+	var postRequest = (options, callback) => {
 		var requestHandler = (err, res, body) => {
 			if (err) {
 				callback(err);
@@ -35,7 +37,7 @@ var VirusTotal = function (apiKey) {
 			form: param
 		};
 
-		resultRequest(options, callback);
+		postRequest(options, callback);
 	};
 
 	this.getUrlScanReport = (resourceID, callback) => {
@@ -48,8 +50,21 @@ var VirusTotal = function (apiKey) {
 			form: param
 		};
 
-		resultRequest(options, callback);
+		postRequest(options, callback);
 	};
+
+	this.scanFile = (filepath, callback) => {
+		var param = {
+			file: ("file", path.basename(filepath), fs.createReadStream(filepath)),
+			apikey: this.apiKey
+		}
+		var options = {
+			url: this.scanFileURL,
+			formData: param
+		}
+
+		postRequest(options, callback);
+	}
 };
 
 module.exports = VirusTotal;

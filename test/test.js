@@ -37,6 +37,28 @@ describe('getFileScanReport', () => {
 		});
 	});
 
+	describe('resourceID not found', () => {
+		before(() => {
+			sinon
+				.stub(request, 'post')
+				.yields(null, {statusCode: 200}, JSON.stringify({response_code: 0}));
+		});
+
+		after(() => {
+			request.post.restore();
+		});
+
+		it('response_code of 0', (done) => {
+			var getResponseCode = (err, data) => {
+				expect(data.response_code).to.equal(0);
+				expect(data.positives).to.be.an('undefined');
+				done();
+			};
+
+			virustotalObj.getFileScanReport('fake file resourceID', getResponseCode);
+		});
+	});
+
 	describe('Too many requests', () => {
 		before(() => {
 			sinon
@@ -107,6 +129,28 @@ describe('getURLScanReport', () => {
 		});
 	});
 
+	describe('url not found', () => {
+		before(() => {
+			sinon
+				.stub(request, 'post')
+				.yields(null, {statusCode: 200}, JSON.stringify({"response_code": 0}));
+		});
+
+		after(() => {
+			request.post.restore();
+		});
+
+		it('response_code of 0', (done) => {
+			var getResponseCode = (err, data) => {
+				expect(data.response_code).to.equal(0);
+				expect(err).to.be.an('null');
+				done();
+			};
+
+			virustotalObj.getUrlScanReport('fake url', getResponseCode);
+		});
+	});
+
 	describe('Too many requests', () => {
 		before(() => {
 			sinon
@@ -148,6 +192,31 @@ describe('getURLScanReport', () => {
 			};
 
 			virustotalObj.getFileScanReport('fake url', getErrorMessage);
+		});
+	});
+});
+
+describe('scanFile', () => {
+	var virustotalObj = new VirusTotal('fake api key');
+	describe('Scan request successfuly queued', () => {
+		before(() => {
+			sinon
+				.stub(request, 'post')
+				.yields(null, {statusCode: 200}, JSON.stringify({response_code: 1}));
+		});
+
+		after(() => {
+			request.post.restore();
+		});
+
+		it('response_code of 1', (done) => {
+			var getResponseCode = (err, data) => {
+				expect(data.response_code).to.equal(1);
+				expect(data.positives).to.be.an('undefined');
+				done();
+			};
+
+			virustotalObj.scanFile('test/safe.txt', getResponseCode);
 		});
 	});
 });

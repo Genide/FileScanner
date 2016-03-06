@@ -1,0 +1,5 @@
+{
+    "response_code": 0,
+    "resource": "not an actual resource id",
+    "verbose_msg": "Invalid resource, check what you are submitting"
+}
