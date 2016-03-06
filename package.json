@@ -16,7 +16,8 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-exec": "^0.4.6",
     "istanbul": "^0.4.2",
-    "mocha": "^2.4.5"
+    "mocha": "^2.4.5",
+    "request": "^2.69.0"
   },
   "dependencies": {
     "lodash": "^4.6.1"

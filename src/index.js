@@ -1,6 +1,6 @@
 var _ = require('lodash');
 var fs = require('fs');
-var http = require('http');
+var request = require('request');
 
 var scanFile = function (filepath) {
 	
