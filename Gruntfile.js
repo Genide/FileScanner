@@ -5,7 +5,7 @@ module.exports = function (grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 		exec: {
-			test: 'istanbul cover ./node_modules/mocha/bin/_mocha -- -c'
+			test: 'node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- -c'
 		},
 		jshint: {
 			all: ['Gruntfile.js', src, test],
