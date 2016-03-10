@@ -255,3 +255,71 @@ describe('scanFile', () => {
 		});
 	});
 });
+
+describe('rescanFileID', () => {
+	var virustotalObj = new VirusTotal('fake api key');
+	describe('Rescan successful', () => {
+		before(() => {
+			sinon
+				.stub(request, 'post')
+				.yields(null, {statusCode: 200}, JSON.stringify({response_code: 1}));
+		});
+
+		after(() => {
+			request.post.restore();
+		});
+
+		it('response_code of 1', (done) => {
+			var checkStatusCode = (err, data) => {
+				expect(data.response_code).to.equal(1);
+				done();
+			};
+
+			virustotalObj.rescanFileID('some fake resourceID', checkStatusCode);
+		});
+	});
+
+	describe('Rescan unsuccessful', () => {
+		before(() => {
+			sinon
+				.stub(request, 'post')
+				.yields(null, {statusCode: 200}, JSON.stringify({response_code: 0}));
+		});
+
+		after(() => {
+			request.post.restore();
+		});
+
+		it('response_code of 0', (done) => {
+			var checkStatusCode = (err, data) => {
+				expect(data.response_code).to.equal(0);
+				done();
+			};
+
+			virustotalObj.rescanFileID('some fake resourceID', checkStatusCode);
+		});
+	});
+});
+
+describe('hashFile', () => {
+	var virustotalObj = new VirusTotal('fake api key');
+	describe('Good hash', () => {
+		it('hashing empty.txt', (done) => {
+			var checkHash = (hash) => {
+				expect(hash).to.equal('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
+				done();
+			};
+
+			virustotalObj.hashFile('test/empty.txt', checkHash);
+		});
+
+		it('hashing a large file', (done) => {
+			var checkHash = (hash) => {
+				expect(hash).to.equal('eea9c884edc4f9a5d5a636baacdd2b1c67148e7c36233affe2de11478d5fc48e');
+				done();
+			};
+
+			virustotalObj.hashFile('test/large_file.txt', checkHash);
+		});
+	});
+});
