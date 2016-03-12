@@ -4,7 +4,7 @@
   "description": "This project will allow you to upload your files onto VirusTotal and retrieve scan results.",
   "main": "src/index.js",
   "scripts": {
-    "test": "node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- -c"
+    "test": "grunt test"
   },
   "author": "Daniel Nguyen",
   "license": "ISC",
@@ -21,6 +21,7 @@
     "sinon": "^1.17.3"
   },
   "dependencies": {
+    "chokidar": "^1.4.3",
     "lodash": "^4.6.1"
   }
 }
