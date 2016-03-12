@@ -5,7 +5,8 @@ module.exports = function (grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 		exec: {
-			test: 'node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- -c'
+			test: 'node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- -c',
+			coveralls: 'cat ./coverage/lcov.info | node ./node_modules/coveralls/bin/coveralls.js'
 		},
 		jshint: {
 			all: ['Gruntfile.js', src, test],
@@ -51,6 +52,6 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-connect');
 
-	grunt.registerTask('test', ['exec:test']);
+	grunt.registerTask('test', ['exec:test', 'exec:coveralls']);
 	grunt.registerTask('default', ['test', 'connect', 'watch']);
 };
