@@ -86,7 +86,7 @@ var VirusTotal = function (apiKey) {
 		var stream = fs.createReadStream(filepath);
 
 		stream.on('data', (data) => {
-			hash.update(data, 'utf8');
+			hash.update(data);
 		});
 
 		stream.on('end', () => {
