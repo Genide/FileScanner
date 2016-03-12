@@ -12,7 +12,7 @@ describe('canary', function () {
 	});
 });
 
-describe('getFileScanReport', function () {
+describe('getFileScanReport', () => {
 	var virustotalObj = new VirusTotal('fake api key');
 	
 	describe('Good Data', () => {
