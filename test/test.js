@@ -223,9 +223,7 @@ describe('scanFile', () => {
 	describe('File not found', () => {
 		it('Attempting to scan file_does_not_exist.txt', (done) => {
 			var getError = (err, data) => {
-				expect(err.errno).to.equal(-4058);
-				expect(err.code).to.equal('ENOENT');
-				expect(err.syscall).to.equal('open');
+				expect(err).to.be.an('error');
 				expect(data).to.be.an('undefined');
 				done();
 			};
