@@ -5,4 +5,4 @@ node_js:
 before_script:
   - npm install grunt-cli -g
 after_script:
-  - 'grunt exec:coverrals'
+  - 'grunt exec:coveralls'
