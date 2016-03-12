@@ -66,7 +66,7 @@ var VirusTotal = function (apiKey) {
 		};
 
 		postRequest(options, callback);
-	}
+	};
 
 	this.rescanFileID = (resourceID, callback) => {
 		var param = {
@@ -79,10 +79,10 @@ var VirusTotal = function (apiKey) {
 		};
 
 		postRequest(options, callback);
-	}
+	};
 
 	this.hashFile = (filepath, callback) => {
-		var hash = crypto.createHash('md5');
+		var hash = crypto.createHash('SHA256');
 		var stream = fs.createReadStream(filepath);
 
 		stream.on('data', (data) => {
