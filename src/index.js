@@ -82,7 +82,7 @@ var VirusTotal = function (apiKey) {
 	}
 
 	this.hashFile = (filepath, callback) => {
-		var hash = crypto.createHash('sha256');
+		var hash = crypto.createHash('SHA256');
 		var stream = fs.createReadStream(filepath);
 
 		stream.on('data', (data) => {
