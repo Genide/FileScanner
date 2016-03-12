@@ -313,7 +313,7 @@ describe('hashFile', () => {
 
 		it('hashing a large file', (done) => {
 			var checkHash = (hash) => {
-				expect(hash).to.equal('eea9c884edc4f9a5d5a636baacdd2b1c67148e7c36233affe2de11478d5fc48e');
+				expect(hash).to.equal('88da9f52b512b3196b3ab48192b748acc90799d444493e62dfdf16df8c034b01');
 				done();
 			};
 
