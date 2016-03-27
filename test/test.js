@@ -3,6 +3,8 @@ var sinon = require('sinon');
 var request = require('request');
 var VirusTotal = require('../src/index.js');
 
+var virustotalObj = new VirusTotal('fake api key');
+
 describe('canary', function () {
 	var foo = "bar";
 
@@ -12,295 +14,156 @@ describe('canary', function () {
 	});
 });
 
-describe('getFileScanReport', () => {
-	var virustotalObj = new VirusTotal('fake api key');
-	
-	describe('Good Data', () => {
-		before(() => {
-			sinon
-				.stub(request, 'post')
-				.yields(null, {statusCode: 200}, JSON.stringify({response_code: 1}));
-		});
-
-		after(() => {
-			request.post.restore();
-		});
-
-		it('response_code of 1', (done) => {
-			var getResponseCode = (err, data) => {
-				expect(data.response_code).to.equal(1);
-				expect(data.positives).to.be.an('undefined');
-				done();
-			};
-
-			virustotalObj.getFileScanReport('fake file resourceID', getResponseCode);
-		});
+describe('Good Data', () => {
+	before(() => {
+		sinon
+			.stub(request, 'post')
+			.yields(null, {statusCode: 200}, JSON.stringify({response_code: 1}));
 	});
 
-	describe('resourceID not found', () => {
-		before(() => {
-			sinon
-				.stub(request, 'post')
-				.yields(null, {statusCode: 200}, JSON.stringify({response_code: 0}));
-		});
-
-		after(() => {
-			request.post.restore();
-		});
-
-		it('response_code of 0', (done) => {
-			var getResponseCode = (err, data) => {
-				expect(data.response_code).to.equal(0);
-				expect(data.positives).to.be.an('undefined');
-				done();
-			};
-
-			virustotalObj.getFileScanReport('fake file resourceID', getResponseCode);
-		});
+	after(() => {
+		request.post.restore();
 	});
 
-	describe('Too many requests', () => {
-		before(() => {
-			sinon
-				.stub(request, 'post')
-				.yields(null, {statusCode: 204}, undefined);
-		});
-
-		after(() => {
-			request.post.restore();
-		});
-
-		it('204 statusCode', (done) => {
-			var getResponseCode = (err, data) => {
-				expect(err.statusCode).to.equal(204);
-				expect(data).to.be.an('undefined');
-				done();
-			};
-
-			virustotalObj.getFileScanReport('fake file resourceID', getResponseCode);
-		});
+	it("getFileScanReport", (done) => {
+		var checkResults = (err, body) => {
+			expect(body.response_code).to.equal(1);
+			return done();
+		};
+		virustotalObj.getFileScanReport('fake resource ID', checkResults);
 	});
 
-	describe('Error with connection', () => {
-		before(() => {
-			sinon
-				.stub(request, 'post')
-				.yields('Error message here', null, undefined);
-		});
+	it("getUrlScanReport", (done) => {
+		var checkResults = (err, body) => {
+			expect(body.response_code).to.equal(1);
+			return done();
+		};
+		virustotalObj.getUrlScanReport('fake url', checkResults);
+	});
 
-		after(() => {
-			request.post.restore();
-		});
+	it("scanFile", (done) => {
+		var checkResults = (err, body) => {
+			expect(body.response_code).to.equal(1);
+			return done();
+		};
+		virustotalObj.scanFile('fake filepath', checkResults);
+	});
 
-		it('Error message with connection received', (done) => {
-			var getErrorMessage = (err, data) => {
-				expect(err).to.equal('Error message here');
-				expect(data).to.be.an('undefined');
-				done();
-			};
-
-			virustotalObj.getFileScanReport('fake file resourceID', getErrorMessage);
-		});
+	it("rescanFileID", (done) => {
+		var checkResults = (err, body) => {
+			expect(body.response_code).to.equal(1);
+			return done();
+		};
+		virustotalObj.rescanFileID('fake file id', checkResults);
 	});
 });
 
-describe('getURLScanReport', () => {
-	var virustotalObj = new VirusTotal('fake api key');
-	
-	describe('Good Data', () => {
-		before(() => {
-			sinon
-				.stub(request, 'post')
-				.yields(null, {statusCode: 200}, JSON.stringify({"response_code": 1}));
-		});
-
-		after(() => {
-			request.post.restore();
-		});
-
-		it('response_code of 1', (done) => {
-			var getResponseCode = (err, data) => {
-				expect(data.response_code).to.equal(1);
-				expect(err).to.be.an('null');
-				done();
-			};
-
-			virustotalObj.getUrlScanReport('fake url', getResponseCode);
-		});
+describe("Too many requests", () => {
+	before(() => {
+		sinon
+			.stub(request, 'post')
+			.yields(null, {statusCode: 204});
 	});
 
-	describe('url not found', () => {
-		before(() => {
-			sinon
-				.stub(request, 'post')
-				.yields(null, {statusCode: 200}, JSON.stringify({"response_code": 0}));
-		});
-
-		after(() => {
-			request.post.restore();
-		});
-
-		it('response_code of 0', (done) => {
-			var getResponseCode = (err, data) => {
-				expect(data.response_code).to.equal(0);
-				expect(err).to.be.an('null');
-				done();
-			};
-
-			virustotalObj.getUrlScanReport('fake url', getResponseCode);
-		});
+	after(() => {
+		request.post.restore();
 	});
 
-	describe('Too many requests', () => {
-		before(() => {
-			sinon
-				.stub(request, 'post')
-				.yields(null, {statusCode: 204}, undefined);
-		});
-
-		after(() => {
-			request.post.restore();
-		});
-
-		it('204 statusCode', (done) => {
-			var getResponseCode = (err, data) => {
-				expect(err.statusCode).to.equal(204);
-				expect(data).to.be.an('undefined');
-				done();
-			};
-
-			virustotalObj.getUrlScanReport('fake url', getResponseCode);
-		});
+	it("getFileScanReport", (done) => {
+		var checkError = (err, body) => {
+			expect(err.message).to.equal("Too many requests");
+			done();
+		};
+		virustotalObj.getFileScanReport('fake file id', checkError);
 	});
 
-	describe('Error with connection', () => {
-		before(() => {
-			sinon
-				.stub(request, 'post')
-				.yields('Error message here', null, undefined);
-		});
+	it("getUrlScanReport", (done) => {
+		var checkError = (err, body) => {
+			expect(err.message).to.equal("Too many requests");
+			done();
+		};
+		virustotalObj.getUrlScanReport('fake url', checkError);
+	});
 
-		after(() => {
-			request.post.restore();
-		});
+	it("scanFile", (done) => {
+		var checkError = (err, body) => {
+			expect(err.message).to.equal("Too many requests");
+			done();
+		};
+		virustotalObj.scanFile('fake filepath', checkError);
+	});
 
-		it('Error message with connection received', (done) => {
-			var getErrorMessage = (err, data) => {
-				expect(err).to.equal('Error message here');
-				expect(data).to.be.an('undefined');
-				done();
-			};
-
-			virustotalObj.getFileScanReport('fake url', getErrorMessage);
-		});
+	it("rescanFileID", (done) => {
+		var checkError = (err, body) => {
+			expect(err.message).to.equal("Too many requests");
+			done();
+		};
+		virustotalObj.rescanFileID('fake file id', checkError);
 	});
 });
 
-describe('scanFile', () => {
-	var virustotalObj = new VirusTotal('fake api key');
-	describe('Scan request successfuly queued', () => {
-		before(() => {
-			sinon
-				.stub(request, 'post')
-				.yields(null, {statusCode: 200}, JSON.stringify({response_code: 1}));
-		});
-
-		after(() => {
-			request.post.restore();
-		});
-
-		it('response_code of 1', (done) => {
-			var getResponseCode = (err, data) => {
-				expect(data.response_code).to.equal(1);
-				expect(data.positives).to.be.an('undefined');
-				done();
-			};
-
-			virustotalObj.scanFile('test/safe.txt', getResponseCode);
-		});
+describe("General request error", () => {
+	before(() => {
+		sinon
+			.stub(request, 'post')
+			.yields(new Error());
 	});
 
-	describe('File not found', () => {
-		it('Attempting to scan file_does_not_exist.txt', (done) => {
-			var getError = (err, data) => {
-				expect(err).to.be.an('error');
-				expect(data).to.be.an('undefined');
-				done();
-			};
-
-			virustotalObj.scanFile('test/file_does_not_exist.txt', getError);
-		});
+	after(() => {
+		request.post.restore();
 	});
 
-	describe('File already queued', () => {
-		before(() => {
-			sinon
-				.stub(request, 'post')
-				.yields(null, {statusCode: 200}, JSON.stringify({response_code: -2}));
-		});
-
-		after(() => {
-			request.post.restore();
-		});
-
-		it('response_code of -2', (done) => {
-			var checkStatusCode = (err, data) => {
-				expect(data.response_code).to.equal(-2);
-				done();
-			};
-
-			virustotalObj.scanFile('test/safe.txt', checkStatusCode);
-		});
+	it("getFileScanReport", (done) => {
+		var checkError = (err, body) => {
+			expect(err).to.be.an("Error");
+			done();
+		};
+		virustotalObj.getFileScanReport('fake file id', checkError);
 	});
 });
 
-describe('rescanFileID', () => {
-	var virustotalObj = new VirusTotal('fake api key');
-	describe('Rescan successful', () => {
-		before(() => {
-			sinon
-				.stub(request, 'post')
-				.yields(null, {statusCode: 200}, JSON.stringify({response_code: 1}));
-		});
-
-		after(() => {
-			request.post.restore();
-		});
-
-		it('response_code of 1', (done) => {
-			var checkStatusCode = (err, data) => {
-				expect(data.response_code).to.equal(1);
-				done();
-			};
-
-			virustotalObj.rescanFileID('some fake resourceID', checkStatusCode);
-		});
+describe("General request response", () => {
+	before(() => {
+		sinon
+			.stub(request, 'post')
+			.yields(undefined, {statusCode: 9999}, JSON.stringify({canary: "bird"}));
 	});
 
-	describe('Rescan unsuccessful', () => {
-		before(() => {
-			sinon
-				.stub(request, 'post')
-				.yields(null, {statusCode: 200}, JSON.stringify({response_code: 0}));
-		});
+	after(() => {
+		request.post.restore();
+	});
 
-		after(() => {
-			request.post.restore();
-		});
+	it("getFileScanReport", (done) => {
+		var checkError = (err, body) => {
+			expect(body.canary).to.equal("bird");
+			done();
+		};
+		virustotalObj.getFileScanReport('fake file id', checkError);
+	});
+});
 
-		it('response_code of 0', (done) => {
-			var checkStatusCode = (err, data) => {
-				expect(data.response_code).to.equal(0);
-				done();
-			};
+describe("unknown error", () => {
+	before(() => {
+		sinon
+			.stub(request, 'post')
+			.yields();
+	});
 
-			virustotalObj.rescanFileID('some fake resourceID', checkStatusCode);
-		});
+	after(() => {
+		request.post.restore();
+	});
+
+	it("getFileScanReport", (done) => {
+		var checkError = (err, body) => {
+			expect(err).to.be.an("Error");
+			expect(err.message).to.equal("Unknown problem occured");
+			done();
+		};
+		virustotalObj.getFileScanReport('fake file id', checkError);
 	});
 });
 
 describe('hashFile', () => {
-	var virustotalObj = new VirusTotal('fake api key');
 	describe('Good hash', () => {
 		it('hashing empty.txt', (done) => {
 			var checkHash = (hash) => {

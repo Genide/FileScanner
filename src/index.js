@@ -13,20 +13,20 @@ var VirusTotal = function (apiKey) {
 
 	var postRequest = (options, callback) => {
 		var requestHandler = (err, res, body) => {
-			if (err) {
-				callback(err);
-			} else if (res.statusCode === 200) {
-				callback(null, JSON.parse(body));
-			} else {
-				callback(res);
+			if (err) return callback(err);
+			if (res) {
+				if (res.statusCode === 200) {
+					return callback(null, JSON.parse(body));
+				} else if (res.statusCode === 204) {
+					return callback(new Error("Too many requests"));
+				} else {
+					return callback(err, JSON.parse(body));
+				}
 			}
+			return callback(new Error("Unknown problem occured"));
 		};
 
-		request
-			.post(options, requestHandler);
-			// .on('error', () => {     //IS THIS EVENT HANDLER EVEN NECESSARY?
-			// 	return;
-			// });
+		request.post(options, requestHandler);
 	};
 
 	this.getFileScanReport = (resourceID, callback) => {
