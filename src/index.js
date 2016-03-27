@@ -29,6 +29,24 @@ var VirusTotal = function (apiKey) {
 		request.post(options, requestHandler);
 	};
 
+	var getRequest = (options, callback) => {
+		var requestHandler = (err, res, body) => {
+			if (err) return callback(err);
+			if (res) {
+				if (res.statusCode === 200) {
+					return callback(null, JSON.parse(body));
+				} else if (res.statusCode === 204) {
+					return callback(new Error("Too many requests"));
+				} else {
+					return callback(err, JSON.parse(body));
+				}
+			}
+			return callback(new Error("Unknown problem occured"));
+		};
+
+		request.get(options, requestHandler);
+	};
+
 	this.getFileScanReport = (resourceID, callback) => {
 		var param = {
 			resource: resourceID,
@@ -92,6 +110,19 @@ var VirusTotal = function (apiKey) {
 		stream.on('end', () => {
 			callback(hash.digest('hex'));
 		});
+	};
+
+	this.getIPReport = (ip, callback) => {
+		var param = {
+			ip: ip,
+			apikey: apiKey
+		};
+		var options = {
+			url: 'http://www.virustotal.com/vtapi/v2/ip-address/report',
+			qs: param
+		};
+
+		getRequest(options, callback);
 	};
 };
 

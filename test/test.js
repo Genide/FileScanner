@@ -19,10 +19,14 @@ describe('Good Data', () => {
 		sinon
 			.stub(request, 'post')
 			.yields(null, {statusCode: 200}, JSON.stringify({response_code: 1}));
+		sinon
+			.stub(request, 'get')
+			.yields(null, {statusCode: 200}, JSON.stringify({response_code: 1}));
 	});
 
 	after(() => {
 		request.post.restore();
+		request.get.restore();
 	});
 
 	it("getFileScanReport", (done) => {
@@ -56,6 +60,14 @@ describe('Good Data', () => {
 		};
 		virustotalObj.rescanFileID('fake file id', checkResults);
 	});
+
+	it("getIPReport", (done) => {
+		var checkResults = (err, body) => {
+			expect(body.response_code).to.equal(1);
+			return done();
+		};
+		virustotalObj.getIPReport('fake ip', checkResults);
+	});
 });
 
 describe("Too many requests", () => {
@@ -63,10 +75,14 @@ describe("Too many requests", () => {
 		sinon
 			.stub(request, 'post')
 			.yields(null, {statusCode: 204});
+		sinon
+			.stub(request, 'get')
+			.yields(null, {statusCode: 204});
 	});
 
 	after(() => {
 		request.post.restore();
+		request.get.restore();
 	});
 
 	it("getFileScanReport", (done) => {
