@@ -116,6 +116,14 @@ describe("Too many requests", () => {
 		};
 		virustotalObj.rescanFileID('fake file id', checkError);
 	});
+
+	it("getIPReport", (done) => {
+		var checkError = (err, body) => {
+			expect(err.message).to.equal("Too many requests");
+			done();
+		};
+		virustotalObj.getIPReport('fake ip', checkError);
+	});
 });
 
 describe("General request error", () => {
@@ -123,10 +131,14 @@ describe("General request error", () => {
 		sinon
 			.stub(request, 'post')
 			.yields(new Error());
+		sinon
+			.stub(request, 'get')
+			.yields(new Error());
 	});
 
 	after(() => {
 		request.post.restore();
+		request.get.restore();
 	});
 
 	it("getFileScanReport", (done) => {
@@ -136,6 +148,14 @@ describe("General request error", () => {
 		};
 		virustotalObj.getFileScanReport('fake file id', checkError);
 	});
+
+	it("getIPReport", (done) => {
+		var checkError = (err, body) => {
+			expect(err).to.be.an("Error");
+			done();
+		};
+		virustotalObj.getIPReport('fake ip', checkError);
+	});
 });
 
 describe("General request response", () => {
@@ -143,10 +163,14 @@ describe("General request response", () => {
 		sinon
 			.stub(request, 'post')
 			.yields(undefined, {statusCode: 9999}, JSON.stringify({canary: "bird"}));
+		sinon
+			.stub(request, 'get')
+			.yields(undefined, {statusCode: 9999}, JSON.stringify({canary: "bird"}));
 	});
 
 	after(() => {
 		request.post.restore();
+		request.get.restore();
 	});
 
 	it("getFileScanReport", (done) => {
@@ -156,6 +180,14 @@ describe("General request response", () => {
 		};
 		virustotalObj.getFileScanReport('fake file id', checkError);
 	});
+
+	it("getIPReport", (done) => {
+		var checkError = (err, body) => {
+			expect(body.canary).to.equal("bird");
+			done();
+		};
+		virustotalObj.getIPReport('fake ip', checkError);
+	});
 });
 
 describe("unknown error", () => {
@@ -163,10 +195,14 @@ describe("unknown error", () => {
 		sinon
 			.stub(request, 'post')
 			.yields();
+		sinon
+			.stub(request, 'get')
+			.yields();
 	});
 
 	after(() => {
 		request.post.restore();
+		request.get.restore();
 	});
 
 	it("getFileScanReport", (done) => {
@@ -176,6 +212,15 @@ describe("unknown error", () => {
 			done();
 		};
 		virustotalObj.getFileScanReport('fake file id', checkError);
+	});
+
+	it("getIPReport", (done) => {
+		var checkError = (err, body) => {
+			expect(err).to.be.an("Error");
+			expect(err.message).to.equal("Unknown problem occured");
+			done();
+		};
+		virustotalObj.getIPReport('fake ip', checkError);
 	});
 });
 
