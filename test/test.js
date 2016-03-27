@@ -68,6 +68,14 @@ describe('Good Data', () => {
 		};
 		virustotalObj.getIPReport('fake ip', checkResults);
 	});
+
+	it("getDomainReport", (done) => {
+		var checkResults = (err, body) => {
+			expect(body.response_code).to.equal(1);
+			return done();
+		};
+		virustotalObj.getDomainReport('fake domain', checkResults);
+	});
 });
 
 describe("Too many requests", () => {
@@ -91,30 +99,6 @@ describe("Too many requests", () => {
 			done();
 		};
 		virustotalObj.getFileScanReport('fake file id', checkError);
-	});
-
-	it("getUrlScanReport", (done) => {
-		var checkError = (err, body) => {
-			expect(err.message).to.equal("Too many requests");
-			done();
-		};
-		virustotalObj.getUrlScanReport('fake url', checkError);
-	});
-
-	it("scanFile", (done) => {
-		var checkError = (err, body) => {
-			expect(err.message).to.equal("Too many requests");
-			done();
-		};
-		virustotalObj.scanFile('fake filepath', checkError);
-	});
-
-	it("rescanFileID", (done) => {
-		var checkError = (err, body) => {
-			expect(err.message).to.equal("Too many requests");
-			done();
-		};
-		virustotalObj.rescanFileID('fake file id', checkError);
 	});
 
 	it("getIPReport", (done) => {

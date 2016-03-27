@@ -124,6 +124,19 @@ var VirusTotal = function (apiKey) {
 
 		getRequest(options, callback);
 	};
+
+	this.getDomainReport = (domain, callback) => {
+		var param = {
+			domain: domain,
+			apikey: apiKey
+		};
+		var options = {
+			url: 'http://www.virustotal.com/vtapi/v2/domain/report',
+			qs: param
+		};
+
+		getRequest(options, callback);
+	};
 };
 
 module.exports = VirusTotal;
