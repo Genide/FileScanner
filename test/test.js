@@ -76,6 +76,14 @@ describe('Good Data', () => {
 		};
 		virustotalObj.getDomainReport('fake domain', checkResults);
 	});
+
+	it("postComment", (done) => {
+		var checkResults = (err, body) => {
+			expect(body.response_code).to.equal(1);
+			return done();
+		};
+		virustotalObj.postComment('fake resource ID', 'fake comment', checkResults);
+	});
 });
 
 describe("Too many requests", () => {

@@ -10,6 +10,7 @@ var VirusTotal = function (apiKey) {
 	this.urlScanReportURL = 'http://www.virustotal.com/vtapi/v2/url/report';
 	this.scanFileURL = 'https://www.virustotal.com/vtapi/v2/file/scan';
 	this.rescanFileURL = 'https://www.virustotal.com/vtapi/v2/file/rescan';
+	this.postCommentURL = 'https://www.virustotal.com/vtapi/v2/comments/put';
 
 	var postRequest = (options, callback) => {
 		var requestHandler = (err, res, body) => {
@@ -115,7 +116,7 @@ var VirusTotal = function (apiKey) {
 	this.getIPReport = (ip, callback) => {
 		var param = {
 			ip: ip,
-			apikey: apiKey
+			apikey: this.apiKey
 		};
 		var options = {
 			url: 'http://www.virustotal.com/vtapi/v2/ip-address/report',
@@ -128,7 +129,7 @@ var VirusTotal = function (apiKey) {
 	this.getDomainReport = (domain, callback) => {
 		var param = {
 			domain: domain,
-			apikey: apiKey
+			apikey: this.apiKey
 		};
 		var options = {
 			url: 'http://www.virustotal.com/vtapi/v2/domain/report',
@@ -136,6 +137,20 @@ var VirusTotal = function (apiKey) {
 		};
 
 		getRequest(options, callback);
+	};
+
+	this.postComment = (resourceID, comment, callback) => {
+		var param = {
+			resource: resourceID,
+			comment: comment,
+			apikey: this.apiKey
+		};
+		var options = {
+			url: this.postCommentURL,
+			formData: param
+		};
+
+		postRequest(options, callback);
 	};
 };
 
