@@ -165,7 +165,17 @@ describe("General request response", () => {
 });
 
 describe("unknown error", () => {
+	var checkErrorFactory;
 	before(() => {
+		// Initialize checkErrorFactory
+		checkErrorFactory = function (callback) {
+			return function (err, body) {
+				expect(err).to.be.an("Error");
+				expect(err.message).to.equal("Unknown problem occured");
+				return callback();
+			};
+		};
+		// Stub out requests
 		sinon
 			.stub(request, 'post')
 			.yields();
@@ -180,21 +190,11 @@ describe("unknown error", () => {
 	});
 
 	it("getFileScanReport", (done) => {
-		var checkError = (err, body) => {
-			expect(err).to.be.an("Error");
-			expect(err.message).to.equal("Unknown problem occured");
-			done();
-		};
-		virustotalObj.getFileScanReport('fake file id', checkError);
+		virustotalObj.getFileScanReport('fake file id', checkErrorFactory(done));
 	});
 
 	it("getIPReport", (done) => {
-		var checkError = (err, body) => {
-			expect(err).to.be.an("Error");
-			expect(err.message).to.equal("Unknown problem occured");
-			done();
-		};
-		virustotalObj.getIPReport('fake ip', checkError);
+		virustotalObj.getIPReport('fake ip', checkErrorFactory(done));
 	});
 });
 
