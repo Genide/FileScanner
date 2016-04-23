@@ -69,7 +69,16 @@ describe('Good Data', () => {
 });
 
 describe("Too many requests", () => {
+	var checkTooManyRequestsFactory;
 	before(() => {
+		// Initialize checkTooManyRequestsFactory
+		checkTooManyRequestsFactory = function (callback) {
+			return function (err, body) {
+				expect(err.message).to.equal("Too many requests");
+				return callback();
+			}
+		};
+		// Stub out requests
 		sinon
 			.stub(request, 'post')
 			.yields(null, {statusCode: 204});
@@ -84,19 +93,11 @@ describe("Too many requests", () => {
 	});
 
 	it("getFileScanReport", (done) => {
-		var checkError = (err, body) => {
-			expect(err.message).to.equal("Too many requests");
-			done();
-		};
-		virustotalObj.getFileScanReport('fake file id', checkError);
+		virustotalObj.getFileScanReport('fake file id', checkTooManyRequestsFactory(done));
 	});
 
 	it("getIPReport", (done) => {
-		var checkError = (err, body) => {
-			expect(err.message).to.equal("Too many requests");
-			done();
-		};
-		virustotalObj.getIPReport('fake ip', checkError);
+		virustotalObj.getIPReport('fake ip', checkTooManyRequestsFactory(done));
 	});
 });
 
