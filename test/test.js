@@ -196,23 +196,22 @@ describe("unknown error", () => {
 });
 
 describe('hashFile', () => {
+	var checkHashFactory = function (correctHash, callback) {
+		return function (hash) {
+			expect(hash).to.equal(correctHash);
+			return callback();
+		};
+	};
+	
 	describe('Good hash', () => {
 		it('hashing empty.txt', (done) => {
-			var checkHash = (hash) => {
-				expect(hash).to.equal('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
-				done();
-			};
-
-			virustotalObj.hashFile('test/empty.txt', checkHash);
+			virustotalObj.hashFile('test/empty.txt', 
+				checkHashFactory('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', done));
 		});
 
 		it('hashing a large file', (done) => {
-			var checkHash = (hash) => {
-				expect(hash).to.equal('6cf8b71a5a0ab928192bca8ddef58c505b69d151f12a8eba3ac1b1d1bccc274c');
-				done();
-			};
-
-			virustotalObj.hashFile('test/large_file.txt', checkHash);
+			virustotalObj.hashFile('test/large_file.txt', 
+				checkHashFactory('6cf8b71a5a0ab928192bca8ddef58c505b69d151f12a8eba3ac1b1d1bccc274c', done));
 		});
 	});
 });
