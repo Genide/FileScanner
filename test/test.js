@@ -76,7 +76,7 @@ describe("Too many requests", () => {
 			return function (err, body) {
 				expect(err.message).to.equal("Too many requests");
 				return callback();
-			}
+			};
 		};
 		// Stub out requests
 		sinon

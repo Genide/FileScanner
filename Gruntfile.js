@@ -9,7 +9,6 @@ module.exports = function (grunt) {
 			clean: 'rm -rf ./coverage'
 		},
 		jshint: {
-			all: ['Gruntfile.js', src, test],
 			src: src,
 			test: test,
 			Gruntfile: 'Gruntfile.js',
@@ -52,7 +51,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-connect');
 
-	grunt.registerTask('test', ['exec:test']);
+	grunt.registerTask('test', ['jshint', 'exec:test']);
 	grunt.registerTask('clean', ['exec:clean']);
 	grunt.registerTask('default', ['test', 'connect', 'watch']);
 };
