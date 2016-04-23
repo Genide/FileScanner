@@ -15,6 +15,13 @@ describe('canary', function () {
 });
 
 describe('Good Data', () => {
+	var checkResultsFactory = function (callback) {
+		return function (err, body) {
+			expect(body.response_code).to.equal(1);
+			return callback();
+		};
+	};
+
 	before(() => {
 		sinon
 			.stub(request, 'post')
@@ -30,59 +37,31 @@ describe('Good Data', () => {
 	});
 
 	it("getFileScanReport", (done) => {
-		var checkResults = (err, body) => {
-			expect(body.response_code).to.equal(1);
-			return done();
-		};
-		virustotalObj.getFileScanReport('fake resource ID', checkResults);
+		virustotalObj.getFileScanReport('fake resource ID', checkResultsFactory(done));
 	});
 
 	it("getUrlScanReport", (done) => {
-		var checkResults = (err, body) => {
-			expect(body.response_code).to.equal(1);
-			return done();
-		};
-		virustotalObj.getUrlScanReport('fake url', checkResults);
+		virustotalObj.getUrlScanReport('fake url', checkResultsFactory(done));
 	});
 
 	it("scanFile", (done) => {
-		var checkResults = (err, body) => {
-			expect(body.response_code).to.equal(1);
-			return done();
-		};
-		virustotalObj.scanFile('fake filepath', checkResults);
+		virustotalObj.scanFile('fake filepath', checkResultsFactory(done));
 	});
 
 	it("rescanFileID", (done) => {
-		var checkResults = (err, body) => {
-			expect(body.response_code).to.equal(1);
-			return done();
-		};
-		virustotalObj.rescanFileID('fake file id', checkResults);
+		virustotalObj.rescanFileID('fake file id', checkResultsFactory(done));
 	});
 
 	it("getIPReport", (done) => {
-		var checkResults = (err, body) => {
-			expect(body.response_code).to.equal(1);
-			return done();
-		};
-		virustotalObj.getIPReport('fake ip', checkResults);
+		virustotalObj.getIPReport('fake ip', checkResultsFactory(done));
 	});
 
 	it("getDomainReport", (done) => {
-		var checkResults = (err, body) => {
-			expect(body.response_code).to.equal(1);
-			return done();
-		};
-		virustotalObj.getDomainReport('fake domain', checkResults);
+		virustotalObj.getDomainReport('fake domain', checkResultsFactory(done));
 	});
 
 	it("postComment", (done) => {
-		var checkResults = (err, body) => {
-			expect(body.response_code).to.equal(1);
-			return done();
-		};
-		virustotalObj.postComment('fake resource ID', 'fake comment', checkResults);
+		virustotalObj.postComment('fake resource ID', 'fake comment', checkResultsFactory(done));
 	});
 });
 
