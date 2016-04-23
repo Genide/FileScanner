@@ -15,14 +15,17 @@ describe('canary', function () {
 });
 
 describe('Good Data', () => {
-	var checkResultsFactory = function (callback) {
-		return function (err, body) {
-			expect(body.response_code).to.equal(1);
-			return callback();
-		};
-	};
+	var checkResultsFactory;
 
 	before(() => {
+		// Initialize checkResultsFactory
+		checkResultsFactory = function (callback) {
+			return function (err, body) {
+				expect(body.response_code).to.equal(1);
+				return callback();
+			};
+		};
+		// stub out the requsts
 		sinon
 			.stub(request, 'post')
 			.yields(null, {statusCode: 200}, JSON.stringify({response_code: 1}));
@@ -196,13 +199,17 @@ describe("unknown error", () => {
 });
 
 describe('hashFile', () => {
-	var checkHashFactory = function (correctHash, callback) {
-		return function (hash) {
-			expect(hash).to.equal(correctHash);
-			return callback();
+	var checkHashFactory;
+	before(function () {
+		// Initialize checkHashFactory
+		checkHashFactory = function (correctHash, callback){
+			return function (hash) {
+				expect(hash).to.equal(correctHash);
+				return callback();
+			};
 		};
-	};
-	
+	});
+
 	describe('Good hash', () => {
 		it('hashing empty.txt', (done) => {
 			virustotalObj.hashFile('test/empty.txt', 
