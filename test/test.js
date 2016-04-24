@@ -135,7 +135,16 @@ describe("General request error", () => {
 });
 
 describe("General request response", () => {
+	var checkRequestFactory;
 	before(() => {
+		// Initialize checkRequestFactory
+		checkRequestFactory = function (callback) {
+			return function(err, body) {
+				expect(body.canary).to.equal("bird");
+				return callback();
+			};
+		};
+		// Stub out requests
 		sinon
 			.stub(request, 'post')
 			.yields(undefined, {statusCode: 9999}, JSON.stringify({canary: "bird"}));
@@ -150,19 +159,11 @@ describe("General request response", () => {
 	});
 
 	it("getFileScanReport", (done) => {
-		var checkError = (err, body) => {
-			expect(body.canary).to.equal("bird");
-			done();
-		};
-		virustotalObj.getFileScanReport('fake file id', checkError);
+		virustotalObj.getFileScanReport('fake file id', checkRequestFactory(done));
 	});
 
 	it("getIPReport", (done) => {
-		var checkError = (err, body) => {
-			expect(body.canary).to.equal("bird");
-			done();
-		};
-		virustotalObj.getIPReport('fake ip', checkError);
+		virustotalObj.getIPReport('fake ip', checkRequestFactory(done));
 	});
 });
 
