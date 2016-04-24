@@ -102,7 +102,16 @@ describe("Too many requests", () => {
 });
 
 describe("General request error", () => {
+	var checkErrorFactory;
 	before(() => {
+		// Initialize checkErrorFactory
+		checkErrorFactory = function (callback) {
+			return function (err, body) {
+				expect(err).to.be.an("Error");
+				return callback();
+			};
+		};
+		// Stub out requests
 		sinon
 			.stub(request, 'post')
 			.yields(new Error());
@@ -117,19 +126,11 @@ describe("General request error", () => {
 	});
 
 	it("getFileScanReport", (done) => {
-		var checkError = (err, body) => {
-			expect(err).to.be.an("Error");
-			done();
-		};
-		virustotalObj.getFileScanReport('fake file id', checkError);
+		virustotalObj.getFileScanReport('fake file id', checkErrorFactory(done));
 	});
 
 	it("getIPReport", (done) => {
-		var checkError = (err, body) => {
-			expect(err).to.be.an("Error");
-			done();
-		};
-		virustotalObj.getIPReport('fake ip', checkError);
+		virustotalObj.getIPReport('fake ip', checkErrorFactory(done));
 	});
 });
 
