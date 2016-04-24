@@ -24,5 +24,6 @@
   "dependencies": {
     "chokidar": "^1.4.3",
     "lodash": "^4.6.1"
-  }
+  },
+  "repository": "https://github.com/Genide/FileScanner.git"
 }
