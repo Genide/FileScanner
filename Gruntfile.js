@@ -1,5 +1,5 @@
 module.exports = function (grunt) {
-	require('load-grunt-tasks')(grunt); // npm install --save-dev load-grunt-tasks
+	require('load-grunt-tasks')(grunt); // npm install --save-dev load-grunt-tasks. required for grunt-shell
 
 	var src = 'src/**/*.js';
 	var test = 'test/**/*.js';
@@ -56,7 +56,7 @@ module.exports = function (grunt) {
 		}
 	});
 
-	grunt.loadNpmTasks('grunt-exec');
+	// grunt.loadNpmTasks('grunt-exec');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-connect');
