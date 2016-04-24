@@ -1,12 +1,22 @@
 module.exports = function (grunt) {
+	require('load-grunt-tasks')(grunt); // npm install --save-dev load-grunt-tasks
+
 	var src = 'src/**/*.js';
 	var test = 'test/**/*.js';
 
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		exec: {
-			test: 'node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- -c',
-			clean: 'rm -rf ./coverage'
+		// exec: {  //grunt-exec is not supported anymore
+		// 	test: 'node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- -c',
+		// 	clean: 'rm -rf ./coverage'
+		// },
+		shell: {
+			test: {
+				command: "node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- -c"				
+			},
+			clean: {
+				command: "rm -rf ./coverage"
+			}
 		},
 		jshint: {
 			src: src,
@@ -51,7 +61,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-connect');
 
-	grunt.registerTask('test', ['jshint', 'exec:test']);
-	grunt.registerTask('clean', ['exec:clean']);
+	grunt.registerTask('test', ['jshint', 'shell:test']);
+	grunt.registerTask('clean', ['shell:clean']);
 	grunt.registerTask('default', ['test', 'connect', 'watch']);
 };
