@@ -10,6 +10,8 @@ var VirusTotal = function (apiKey) {
 	this.scanFileURL = 'https://www.virustotal.com/vtapi/v2/file/scan';
 	this.rescanFileURL = 'https://www.virustotal.com/vtapi/v2/file/rescan';
 	this.postCommentURL = 'https://www.virustotal.com/vtapi/v2/comments/put';
+	this.IPReportURL = 'http://www.virustotal.com/vtapi/v2/ip-address/report';
+	this.domainReportURL = 'http://www.virustotal.com/vtapi/v2/domain/report';
 
 	var postRequest = (options, callback) => {
 		var requestHandler = (err, res, body) => {
@@ -118,7 +120,7 @@ var VirusTotal = function (apiKey) {
 			apikey: this.apiKey
 		};
 		var options = {
-			url: 'http://www.virustotal.com/vtapi/v2/ip-address/report',
+			url: this.IPReportURL,
 			qs: param
 		};
 
@@ -131,7 +133,7 @@ var VirusTotal = function (apiKey) {
 			apikey: this.apiKey
 		};
 		var options = {
-			url: 'http://www.virustotal.com/vtapi/v2/domain/report',
+			url: this.domainReportURL,
 			qs: param
 		};
 
