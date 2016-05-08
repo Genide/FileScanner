@@ -24,7 +24,9 @@
   },
   "dependencies": {
     "chokidar": "^1.4.3",
-    "lodash": "^4.6.1"
+    "lodash": "^4.6.1",
+    "vorpal": "^1.10.10",
+    "vorpal-autocomplete-fs": "0.0.3"
   },
   "repository": {
     "type": "git",
