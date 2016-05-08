@@ -18,7 +18,7 @@ var FileQueue = function () {
 	this.processed = [];
 	this.maxRequests = 4;
 	this.interval = 10 * 1000;
-	this.refreshIntervalID;
+	this.refreshIntervalID = null;
 
 	this.watchFiles = (files) => {
 		var filesStr = files.map((val) => val.toString());
