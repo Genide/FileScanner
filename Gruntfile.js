@@ -23,7 +23,10 @@ module.exports = function (grunt) {
 			test: test,
 			Gruntfile: 'Gruntfile.js',
 			options: {
-				esversion: 6
+				esversion: 6,
+				node: true,
+				mocha: true,
+				undef: true
 			}
 		},
 		watch: {

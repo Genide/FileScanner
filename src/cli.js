@@ -1,58 +1,35 @@
-const fork = require('child_process').fork;
+'use strict';
+
 const vorpal = require('vorpal')();
 const fsAutocomplete = require('vorpal-autocomplete-fs');
-const fileQueue = fork('src/filequeuetest.js',
-	{
-		silent: false
-	});
+const FileQueue = require('./filequeuetest.js');
 
-var unwatchList = ['a','b','c'];
-var getUnwatchList = () => unwatchList;
-
-fileQueue.on('close', (code, signal) => {
-	if (code) console.log('Program exited with code ' + code);
-	if (signal) console.log('Program exited with signal ' + signal);
-	process.exit(0);
-});
-
-fileQueue.on('message', (message) => {
-	switch (message.type) {
-		case 'update unwatchList':
-			unwatchList = message.files;
-			break;
-	}
-});
+var fileQueue = new FileQueue();
 
 vorpal
 	.command('watch <files...>', 'Starts watching files')
 	.autocomplete(fsAutocomplete())
 	.action((args, callback) => {
-		// args.files.forEach((file) => {
-		// 	console.log('Start watching ' + file);
-		// });
-		fileQueue.send({type: 'watch', files: args.files});
+		fileQueue.watchFiles(args.files);
 		callback();
 	});
 
 vorpal
 	.command('unwatch <files...>', 'Stop watching files')
-	.autocomplete(getUnwatchList)
+	.autocomplete(fileQueue.getWatchedFiles)
 	.action((args, callback) => {
-		// args.files.forEach((file) => {
-		// 	console.log('Stop watching ' + file);
-		// });
-		fileQueue.send({type: 'unwatch', files: args.files});
+		fileQueue.unwatchFiles(args.files);
 		callback();
 	});
 
 vorpal
 	.command('list', 'List all watched files')
 	.action((args, callback) => {
-		fileQueue.send({type: 'list'});
+		console.log(fileQueue.getWatchedFiles());
 		callback();
 	});
 
 
 vorpal
-	.delimiter('FileQueue> ')
+	.delimiter('fileQueueProcess> ')
 	.show();
