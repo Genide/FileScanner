@@ -29,6 +29,40 @@ vorpal
 		callback();
 	});
 
+vorpal
+	.command('queue', 'List all queued files')
+	.action((args, callback) => {
+		console.log(fileQueue.getQueuedFiles());
+		callback();
+	});
+
+vorpal
+	.command('processing', 'List all processing files')
+	.action((args, callback) => {
+		console.log(fileQueue.getProcessingFiles());
+		callback();
+	});
+
+vorpal
+	.command('processed', 'List all processed files')
+	.action((args, callback) => {
+		console.log(fileQueue.getProcessedFiles());
+		callback();
+	});
+
+vorpal
+	.command('startwatch', 'Starts watching files')
+	.action((args, callback) => {
+		fileQueue.startWatch();
+		callback();
+	});
+
+vorpal
+	.command('stopwatch', 'Stops watching files')
+	.action((args, callback) => {
+		fileQueue.stopWatch();
+		callback();
+	});
 
 vorpal
 	.delimiter('fileQueueProcess> ')
