@@ -65,5 +65,12 @@ vorpal
 	});
 
 vorpal
+	.command('debug', 'Show debug information')
+	.action((args, callback) => {
+		console.log(fileQueue);
+		callback();
+	});
+
+vorpal
 	.delimiter('fileQueueProcess> ')
 	.show();
