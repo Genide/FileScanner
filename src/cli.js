@@ -16,7 +16,7 @@ vorpal
 
 vorpal
 	.command('unwatch <files...>', 'Stop watching files')
-	.autocomplete(fileQueue.getWatchedFiles)
+	.autocomplete(() => fileQueue.getWatchedFiles()) // lambda function to retain fileQueue context
 	.action((args, callback) => {
 		fileQueue.unwatchFiles(args.files);
 		callback();
