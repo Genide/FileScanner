@@ -16,7 +16,8 @@ vorpal
 
 vorpal
 	.command('unwatch <files...>', 'Stop watching files')
-	.autocomplete(() => fileQueue.getWatchedFiles()) // lambda function to retain fileQueue context
+	// .autocomplete(() => fileQueue.getWatchedFiles()) // lambda function to retain fileQueue context
+	.autocomplete(fsAutocomplete())
 	.action((args, callback) => {
 		fileQueue.unwatchFiles(args.files);
 		callback();
@@ -25,7 +26,7 @@ vorpal
 vorpal
 	.command('list', 'List all watched files')
 	.action((args, callback) => {
-		console.log(fileQueue.getWatchedFiles());
+		console.log(fileQueue.watcher.getWatched());
 		callback();
 	});
 

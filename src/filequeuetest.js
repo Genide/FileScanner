@@ -8,14 +8,11 @@ class FileQueue {
 	constructor() {
 		// Create the file watcher
 		this.watcher = chokidar.watch('');
-		// TODO: On add, push files to queue and watchedFiles
-		this.watcher.on('add', (path) => console.log('Add: ' + path));
-		// TODO: On change, push files to queue
-		this.watcher.on('change', (path) => console.log('Change: ' + path));
+		this.setupWatcher();
 
 		// Create the rest of the properties
 		this.queue = [];
-		this.watchedFiles = [];
+		// this.watchedFiles = [];
 		this.processing = [];
 		this.processingCount = 0;
 		this.processed = [];
@@ -24,7 +21,34 @@ class FileQueue {
 		this.refreshIntervalID = null;
 	}
 
-	getWatchedFiles () { return this.watchedFiles; }
+	setupWatcher () {
+		// TODO: On add, push files to queue and watchedFiles
+		this.watcher.on('add', (path, stats) => {
+			console.log('Add: ' + path);
+			// console.log(stats);
+			// this.watchedFiles = _.union(path, this.watchedFiles);
+			this.queueFile(path);
+			console.log(this.watcher._watched);
+		});
+		// TODO: On change, push files to queue
+		this.watcher.on('change', (path, stats) => {
+			console.log('Change: ' + path);
+			// console.log(stats);
+			this.queueFile(path);
+		});
+
+		this.watcher.on('unlink', (path, stats) => {
+			// TODO: remove files from queue
+			console.log('Unlink: ' + path);
+		});
+
+		this.watcher.on('unlinkDir', (path, stats) => {
+			// TODO: remove files from queue
+			console.log('UnlinkDir: ' + path);
+		});
+	}
+
+	// getWatchedFiles () { return this.watchedFiles; }
 	getQueuedFiles () { return this.queue; }
 	getProcessingFiles () { return this.processing; }
 	getProcessedFiles () { return this.processed; }
@@ -32,28 +56,28 @@ class FileQueue {
 	watchFiles (files) {
 		var filesStr = files.map((val) => val.toString());
 		// TODO: Add file path verification
-		this.watchedFiles = _.union(filesStr, this.watchedFiles);
-		this.queueFiles(filesStr);
+		// this.watchedFiles = _.union(filesStr, this.watchedFiles);
+		// this.queueFiles(filesStr);
 		this.watcher.add(filesStr);
+
 	}
 
 	unwatchFiles (files) {
 		var filesStr = files.map((val) => val.toString());
 		// TODO: Add file path verification
-		this.watchedFiles = _.filter(this.watchedFiles, (file) => {
-			return _.indexOf(filesStr, file) === -1;
-		});
+		// this.watchedFiles = _.filter(this.watchedFiles, (file) => {
+		// 	return _.indexOf(filesStr, file) === -1;
+		// });
 		this.watcher.unwatch(filesStr);
 	}
 
 	/* expects an array of strings */
-	queueFiles (files) {
+	queueFile (file) {
 		// push file if file is not queued
-		files.forEach((file) => {
-			if (_.indexOf(this.queue, file) === -1) {
-				this.queue.push(file);
-			}
-		});
+		// if (_.indexOf(this.queue, file) === -1) {
+		if (!this.queue.includes(file)) {
+			this.queue.push(file);
+		}
 	}
 
 	// Move files from queue to processing
@@ -77,6 +101,7 @@ class FileQueue {
 			this.refreshIntervalID._idleTimeout === -1) {
 			// http://stackoverflow.com/questions/20279484/how-to-access-the-correct-this-context-inside-a-callback
 			this.refreshIntervalID = setInterval(this.processNextFiles.bind(this), this.interval);
+			this.setupWatcher();
 		} else {
 			console.log('The watch has already begun');
 		}
@@ -85,6 +110,7 @@ class FileQueue {
 	stopWatch () {
 		clearInterval(this.refreshIntervalID);
 		// console.log(this.refreshIntervalID);
+		this.watcher.close();
 	}
 }
 
