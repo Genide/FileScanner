@@ -28,7 +28,7 @@ class FileQueue {
 			// console.log(stats);
 			// this.watchedFiles = _.union(path, this.watchedFiles);
 			this.queueFile(path);
-			console.log(this.watcher._watched);
+			//console.log(this.watcher._watched);
 		});
 		// TODO: On change, push files to queue
 		this.watcher.on('change', (path, stats) => {
@@ -55,19 +55,14 @@ class FileQueue {
 
 	watchFiles (files) {
 		var filesStr = files.map((val) => val.toString());
-		// TODO: Add file path verification
-		// this.watchedFiles = _.union(filesStr, this.watchedFiles);
-		// this.queueFiles(filesStr);
+		// TODO: Deal with adding files with different slashes
 		this.watcher.add(filesStr);
 
 	}
 
 	unwatchFiles (files) {
 		var filesStr = files.map((val) => val.toString());
-		// TODO: Add file path verification
-		// this.watchedFiles = _.filter(this.watchedFiles, (file) => {
-		// 	return _.indexOf(filesStr, file) === -1;
-		// });
+		// TODO: Deal with removing files with different slashes
 		this.watcher.unwatch(filesStr);
 	}
 

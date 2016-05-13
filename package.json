@@ -23,7 +23,7 @@
     "sinon": "^1.17.3"
   },
   "dependencies": {
-    "chokidar": "^1.4.3",
+    "chokidar": "^1.5.0",
     "lodash": "^4.6.1",
     "vorpal": "^1.10.10",
     "vorpal-autocomplete-fs": "0.0.3"
