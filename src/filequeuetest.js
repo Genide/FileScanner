@@ -73,7 +73,7 @@ class FileQueue {
 
 	queueFile (file) {
 		// push file if file is not queued
-		// if (_.indexOf(this.queue, file) === -1) {
+		// TODO: Add some meta data about what to do with the file.
 		if (!this.queue.includes(file)) {
 			this.queue.push(file);
 		}
@@ -123,6 +123,9 @@ class FileQueue {
 			async.map(reports, scanFile.bind(this), callback);
 		};
 		// TODO: Separate successful reports from files that need to be scanned
+		// TODO: Requeue files that need to get scanned or reported
+		// TODO: Add some meta data about scanning the file
+		// TODO: Add some meta data about getting scan reports
 		var handleResults = function (err, result) {
 			for (var i = 0; i < this.processing.length; i++) {
 				this.processed[this.processing[i]] = result[i];
