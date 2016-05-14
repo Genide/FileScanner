@@ -1,8 +1,11 @@
 'use strict';
 
 const fs = require('fs');
+const path = require('path');
 const _ = require('lodash');
+const async = require('async');
 var chokidar = require('chokidar');
+var VirusTotal = require('./index.js');
 
 class FileQueue {
 	constructor() {
@@ -19,18 +22,17 @@ class FileQueue {
 		this.maxRequests = 4;
 		this.interval = 10 * 1000;
 		this.refreshIntervalID = null;
+		this.vtObj = new VirusTotal('62b0c389e1d05404efb1c13ab88da12e2d100783b8384267fb020a159b358b62');
 	}
 
 	setupWatcher () {
-		// TODO: On add, push files to queue and watchedFiles
 		this.watcher.on('add', (path, stats) => {
 			console.log('Add: ' + path);
 			// console.log(stats);
-			// this.watchedFiles = _.union(path, this.watchedFiles);
 			this.queueFile(path);
 			//console.log(this.watcher._watched);
 		});
-		// TODO: On change, push files to queue
+		
 		this.watcher.on('change', (path, stats) => {
 			console.log('Change: ' + path);
 			// console.log(stats);
@@ -38,35 +40,37 @@ class FileQueue {
 		});
 
 		this.watcher.on('unlink', (path, stats) => {
-			// TODO: remove files from queue
+			// TODO: figure out what to do if the file is being processed
 			console.log('Unlink: ' + path);
-		});
-
-		this.watcher.on('unlinkDir', (path, stats) => {
-			// TODO: remove files from queue
-			console.log('UnlinkDir: ' + path);
+			this.dequeueFile(path);
 		});
 	}
 
-	// getWatchedFiles () { return this.watchedFiles; }
+	getWatchedFiles () { return this.watcher.getWatched(); }
 	getQueuedFiles () { return this.queue; }
 	getProcessingFiles () { return this.processing; }
 	getProcessedFiles () { return this.processed; }
 
 	watchFiles (files) {
+		// TODO: Refactor these lines into their own function
 		var filesStr = files.map((val) => val.toString());
-		// TODO: Deal with adding files with different slashes
-		this.watcher.add(filesStr);
+		var formattedFileStr = filesStr.map((filepath) => {
+			return filepath.split('/').join(path.sep);
+		});
+		this.watcher.add(formattedFileStr);
 
 	}
 
 	unwatchFiles (files) {
+		// TODO: Refactor these lines into their own function
 		var filesStr = files.map((val) => val.toString());
-		// TODO: Deal with removing files with different slashes
-		this.watcher.unwatch(filesStr);
+		var formattedFileStr = filesStr.map((filepath) => {
+			return filepath.split('/').join(path.sep);
+		});
+		this.watcher.unwatch(formattedFileStr);
+		formattedFileStr.forEach(this.dequeueFile.bind(this));
 	}
 
-	/* expects an array of strings */
 	queueFile (file) {
 		// push file if file is not queued
 		// if (_.indexOf(this.queue, file) === -1) {
@@ -75,11 +79,18 @@ class FileQueue {
 		}
 	}
 
+	dequeueFile (file) {
+		var index = this.queue.indexOf(file);
+		if (index >= 0) {
+			this.queue.splice(index, 1);
+		}
+	}
+
 	// Move files from queue to processing
 	// Move processing files to processed. Replace duplicate results
 	processNextFiles () {
 		console.log('processing');
-		this.processed = _.concat(this.processed, this.processing);
+		//this.processed = _.concat(this.processed, this.processing);
 		this.processing = [];
 		this.processingCount = 0;
 		for (var i = 0; i < this.maxRequests; i++) {
@@ -88,6 +99,39 @@ class FileQueue {
 				this.processingCount++;
 			}
 		}
+		// TODO: Rework this entire area
+		var getHashes = function (callback) {
+			async.map(this.processing, this.vtObj.hashFile, (err, result) => {
+				callback(err, result);
+			});
+		};
+		var getFileScanReports = function (hashes, callback) {
+			async.map(hashes, this.vtObj.getFileScanReport, (err, result) => {
+				callback(err, result);
+			});
+		};
+		var sendForScanning = function (reports, callback) {
+			var scanFile = function (report, cb) {
+				if (report.response_code === 1) {
+					cb(null, report);
+				} else {
+					var index = _.indexOf(reports, report);
+					this.vtObj.scanFile(this.processing[index], cb);
+				}
+			};
+			async.map(reports, scanFile.bind(this), callback);
+		};
+		var handleResults = function (err, result) {
+			for (var i = 0; i < this.processing.length; i++) {
+				this.processed[this.processing[i]] = result[i];
+			}
+		};
+
+		async.waterfall([
+			getHashes.bind(this),
+			getFileScanReports.bind(this),
+			sendForScanning.bind(this)
+		], handleResults.bind(this));
 		// console.log("processing next batch of " + this.processingCount++);
 	}
 

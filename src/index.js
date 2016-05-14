@@ -110,7 +110,7 @@ var VirusTotal = function (apiKey) {
 		});
 
 		stream.on('end', () => {
-			callback(hash.digest('hex'));
+			callback(null, hash.digest('hex'));
 		});
 	};
 

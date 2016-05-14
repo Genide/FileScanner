@@ -206,7 +206,7 @@ describe('hashFile', () => {
 	before(function () {
 		// Initialize checkHashFactory
 		checkHashFactory = function (correctHash, callback){
-			return function (hash) {
+			return function (err, hash) {
 				expect(hash).to.equal(correctHash);
 				return callback();
 			};

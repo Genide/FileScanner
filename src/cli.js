@@ -26,7 +26,7 @@ vorpal
 vorpal
 	.command('list', 'List all watched files')
 	.action((args, callback) => {
-		console.log(fileQueue.watcher.getWatched());
+		console.log(fileQueue.getWatchedFiles());
 		callback();
 	});
 
