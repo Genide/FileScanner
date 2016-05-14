@@ -110,6 +110,7 @@ class FileQueue {
 				callback(err, result);
 			});
 		};
+		// TODO: Don't separate here.
 		var sendForScanning = function (reports, callback) {
 			var scanFile = function (report, cb) {
 				if (report.response_code === 1) {
@@ -131,7 +132,7 @@ class FileQueue {
 		async.waterfall([
 			getHashes.bind(this),
 			getFileScanReports.bind(this),
-			sendForScanning.bind(this)
+			sendForScanning.bind(this) // TODO: remove this
 		], handleResults.bind(this));
 		// console.log("processing next batch of " + this.processingCount++);
 	}
