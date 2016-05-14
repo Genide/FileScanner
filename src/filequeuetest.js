@@ -20,7 +20,7 @@ class FileQueue {
 		this.processingCount = 0;
 		this.processed = [];
 		this.maxRequests = 4;
-		this.interval = 10 * 1000;
+		this.interval = 60 * 1000;
 		this.refreshIntervalID = null;
 		this.vtObj = new VirusTotal('apikey');
 	}
@@ -29,14 +29,14 @@ class FileQueue {
 		this.watcher.on('add', (path, stats) => {
 			console.log('Add: ' + path);
 			// console.log(stats);
-			this.queueFile(path);
+			this.queueFile(path, 'new');
 			//console.log(this.watcher._watched);
 		});
 		
 		this.watcher.on('change', (path, stats) => {
 			console.log('Change: ' + path);
 			// console.log(stats);
-			this.queueFile(path);
+			this.queueFile(path, 'new');
 		});
 
 		this.watcher.on('unlink', (path, stats) => {
@@ -71,19 +71,30 @@ class FileQueue {
 		formattedFileStr.forEach(this.dequeueFile.bind(this));
 	}
 
-	queueFile (file) {
+	queueFile (file, status) {
 		// push file if file is not queued
 		// TODO: Add some meta data about what to do with the file.
-		if (!this.queue.includes(file)) {
-			this.queue.push(file);
+		// if (!this.queue.includes(file)) {
+		// 	this.queue.push(file);
+		// }
+		var searchObj = {
+			"filepath": file,
+			"status": status
+		};
+		if (_.find(this.queue, searchObj) === undefined){
+			this.queue.push(searchObj);
 		}
 	}
 
 	dequeueFile (file) {
-		var index = this.queue.indexOf(file);
-		if (index >= 0) {
-			this.queue.splice(index, 1);
-		}
+		// var index = this.queue.indexOf(file);
+		// if (index >= 0) {
+		// 	this.queue.splice(index, 1);
+		// }
+		var searchObj = {
+			"filepath": file
+		};
+		_.pullAllBy(this.queue, [searchObj], 'filepath');
 	}
 
 	// Move files from queue to processing
@@ -99,45 +110,63 @@ class FileQueue {
 				this.processingCount++;
 			}
 		}
-		// TODO: Rework this entire area
-		var getHashes = function (callback) {
-			async.map(this.processing, this.vtObj.hashFile, (err, result) => {
-				callback(err, result);
-			});
-		};
-		var getFileScanReports = function (hashes, callback) {
-			async.map(hashes, this.vtObj.getFileScanReport, (err, result) => {
-				callback(err, result);
-			});
-		};
-		// TODO: Don't separate here.
-		var sendForScanning = function (reports, callback) {
-			var scanFile = function (report, cb) {
-				if (report.response_code === 1) {
-					cb(null, report);
-				} else {
-					var index = _.indexOf(reports, report);
-					this.vtObj.scanFile(this.processing[index], cb);
-				}
-			};
-			async.map(reports, scanFile.bind(this), callback);
-		};
-		// TODO: Separate successful reports from files that need to be scanned
-		// TODO: Requeue files that need to get scanned or reported
-		// TODO: Add some meta data about scanning the file
-		// TODO: Add some meta data about getting scan reports
-		var handleResults = function (err, result) {
-			for (var i = 0; i < this.processing.length; i++) {
-				this.processed[this.processing[i]] = result[i];
+
+		var handleWork = function (file, callback) {
+			switch (file.status) {
+				case 'new':
+				case 'reporting':
+					console.log(file.filepath);
+					async.waterfall([
+						function (cb) {
+							cb(null, file.filepath);
+						},
+						this.vtObj.hashFile,  //may have to bind here
+						this.vtObj.getFileScanReport  //may have to bind here
+					], callback);
+					break;
+				case 'scanning': 
+					// TODO: use this.vtObj.scanFile
+					this.vtObj.scanFile(file.filepath, callback);
+					break;
+				default:
+					callback (new Error('Unexpected file.action: ' + file.action));
 			}
 		};
-
-		async.waterfall([
-			getHashes.bind(this),
-			getFileScanReports.bind(this),
-			sendForScanning.bind(this) // TODO: remove this
-		], handleResults.bind(this));
-		// console.log("processing next batch of " + this.processingCount++);
+		// TODO: Use queueFile function and correct status instead of directly pushing
+		var handleResults = function (err, result) {
+			if (err) {
+				console.log(err);
+				process.exit(1);
+			}
+			for (var i = 0; i < this.processing.length; i++) {
+				// TODO: refactor into its own function
+				switch (this.processing[i].status) {
+					case 'new': 
+						if (result[i].response_code === 1) {
+							this.processed[this.processing[i].filepath] = result[i];
+						} else {
+							this.processing[i].status = 'scanning';
+							this.queue.push(this.processing[i]);
+						}
+						break;
+					case 'scanning':
+						if (result[i].response_code === 1) {
+							this.processing[i].status = 'reporting';
+							this.queue.push(this.processing[i]);
+						}
+						break;
+					case 'reporting':
+						if (result[i].response_code === 1) {
+							this.processed[this.processing[i].filepath] = result[i];
+						} else {
+							this.queue.push(this.processing[i]);
+						}
+						break;
+				}
+			}
+			this.processing = [];
+		};
+		async.map(this.processing, handleWork.bind(this), handleResults.bind(this));
 	}
 
 	startWatch () {
