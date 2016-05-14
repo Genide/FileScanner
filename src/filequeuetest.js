@@ -22,7 +22,7 @@ class FileQueue {
 		this.maxRequests = 4;
 		this.interval = 10 * 1000;
 		this.refreshIntervalID = null;
-		this.vtObj = new VirusTotal('62b0c389e1d05404efb1c13ab88da12e2d100783b8384267fb020a159b358b62');
+		this.vtObj = new VirusTotal('apikey');
 	}
 
 	setupWatcher () {
@@ -121,6 +121,7 @@ class FileQueue {
 			};
 			async.map(reports, scanFile.bind(this), callback);
 		};
+		// TODO: Separate successful reports from files that need to be scanned
 		var handleResults = function (err, result) {
 			for (var i = 0; i < this.processing.length; i++) {
 				this.processed[this.processing[i]] = result[i];
