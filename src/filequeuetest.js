@@ -97,12 +97,35 @@ class FileQueue {
 		_.pullAllBy(this.queue, [searchObj], 'filepath');
 	}
 
+	handleResult (processingFile, result) {
+		switch (processingFile.status) {
+			case 'new':
+				if (result.response_code === 1) {
+					this.processed[processingFile.filepath] = result;
+				} else {
+					this.queueFile(processingFile.filepath, 'scanning');
+				}
+				break;
+			case 'scanning':
+				if (result.response_code === 1) {
+					this.queueFile(processingFile.filepath, 'reporting');
+				}
+				break;
+			case 'reporting':
+				if (result.response_code === 1) {
+					this.processed[processingFile.filepath] = result;
+				} else {
+					this.queueFile(processingFile.filepath, 'reporting');
+				}
+				break;
+		}
+	}
+
 	// Move files from queue to processing
 	// Move processing files to processed. Replace duplicate results
 	processNextFiles () {
 		console.log('processing');
 		//this.processed = _.concat(this.processed, this.processing);
-		this.processing = [];
 		this.processingCount = 0;
 		for (var i = 0; i < this.maxRequests; i++) {
 			if (this.queue.length > 0) {
@@ -120,12 +143,12 @@ class FileQueue {
 						function (cb) {
 							cb(null, file.filepath);
 						},
-						this.vtObj.hashFile,  //may have to bind here
-						this.vtObj.getFileScanReport  //may have to bind here
-					], callback);
+						this.vtObj.hashFile,
+						this.vtObj.getFileScanReport
+					], callback); // TODO: attach filepath to object, then call calback
 					break;
 				case 'scanning': 
-					// TODO: use this.vtObj.scanFile
+					// TODO: use async.waterfall and attach filepath to object, then call callback
 					this.vtObj.scanFile(file.filepath, callback);
 					break;
 				default:
@@ -133,36 +156,13 @@ class FileQueue {
 			}
 		};
 		// TODO: Use queueFile function and correct status instead of directly pushing
-		var handleResults = function (err, result) {
+		var handleResults = function (err, results) {
 			if (err) {
 				console.log(err);
 				process.exit(1);
 			}
 			for (var i = 0; i < this.processing.length; i++) {
-				// TODO: refactor into its own function
-				switch (this.processing[i].status) {
-					case 'new': 
-						if (result[i].response_code === 1) {
-							this.processed[this.processing[i].filepath] = result[i];
-						} else {
-							this.processing[i].status = 'scanning';
-							this.queue.push(this.processing[i]);
-						}
-						break;
-					case 'scanning':
-						if (result[i].response_code === 1) {
-							this.processing[i].status = 'reporting';
-							this.queue.push(this.processing[i]);
-						}
-						break;
-					case 'reporting':
-						if (result[i].response_code === 1) {
-							this.processed[this.processing[i].filepath] = result[i];
-						} else {
-							this.queue.push(this.processing[i]);
-						}
-						break;
-				}
+				this.handleResult(this.processing[i], results[i]);
 			}
 			this.processing = [];
 		};
