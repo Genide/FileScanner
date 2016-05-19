@@ -22,7 +22,7 @@ class FileQueue {
 		this.maxRequests = 4;
 		this.interval = 60 * 1000;
 		this.refreshIntervalID = null;
-		this.vtObj = new VirusTotal('apikey');
+		this.vtObj = new VirusTotal('62b0c389e1d05404efb1c13ab88da12e2d100783b8384267fb020a159b358b62');
 	}
 
 	setupWatcher () {
@@ -73,14 +73,12 @@ class FileQueue {
 
 	queueFile (file, status) {
 		// push file if file is not queued
-		// TODO: Add some meta data about what to do with the file.
-		// if (!this.queue.includes(file)) {
-		// 	this.queue.push(file);
-		// }
 		var searchObj = {
 			"filepath": file,
 			"status": status
 		};
+		// TODO: Determine if i should find by filepath first
+		// then decide what to do based on the status
 		if (_.find(this.queue, searchObj) === undefined){
 			this.queue.push(searchObj);
 		}
@@ -97,25 +95,27 @@ class FileQueue {
 		_.pullAllBy(this.queue, [searchObj], 'filepath');
 	}
 
-	handleResult (processingFile, result) {
-		switch (processingFile.status) {
+	handleResult (result) {
+		// TODO: It is worth keeping the filepath and status?
+		// Should I trust async.map to keep the result ordering?
+		switch (result.status) {
 			case 'new':
 				if (result.response_code === 1) {
-					this.processed[processingFile.filepath] = result;
+					this.processed[result.filepath] = result;
 				} else {
-					this.queueFile(processingFile.filepath, 'scanning');
+					this.queueFile(result.filepath, 'scanning');
 				}
 				break;
 			case 'scanning':
 				if (result.response_code === 1) {
-					this.queueFile(processingFile.filepath, 'reporting');
+					this.queueFile(result.filepath, 'reporting');
 				}
 				break;
 			case 'reporting':
 				if (result.response_code === 1) {
-					this.processed[processingFile.filepath] = result;
+					this.processed[result.filepath] = result;
 				} else {
-					this.queueFile(processingFile.filepath, 'reporting');
+					this.queueFile(result.filepath, 'reporting');
 				}
 				break;
 		}
@@ -144,26 +144,37 @@ class FileQueue {
 							cb(null, file.filepath);
 						},
 						this.vtObj.hashFile,
-						this.vtObj.getFileScanReport
-					], callback); // TODO: attach filepath to object, then call calback
+						this.vtObj.getFileScanReport,
+						function (result, cb) {
+							result.filepath = file.filepath;
+							result.status = file.status;
+							cb(null, result);
+						}
+					], callback);
 					break;
 				case 'scanning': 
-					// TODO: use async.waterfall and attach filepath to object, then call callback
-					this.vtObj.scanFile(file.filepath, callback);
+					async.waterfall([
+						function (cb) {
+							cb(null, file.filepath);
+						},
+						this.vtObj.scanFile,
+						function(result, cb) {
+							result.filepath = file.filepath;
+							result.status = file.status;
+							cb(null, result);
+						}
+					], callback);
 					break;
 				default:
 					callback (new Error('Unexpected file.action: ' + file.action));
 			}
 		};
-		// TODO: Use queueFile function and correct status instead of directly pushing
 		var handleResults = function (err, results) {
 			if (err) {
 				console.log(err);
 				process.exit(1);
 			}
-			for (var i = 0; i < this.processing.length; i++) {
-				this.handleResult(this.processing[i], results[i]);
-			}
+			results.forEach(this.handleResult.bind(this));
 			this.processing = [];
 		};
 		async.map(this.processing, handleWork.bind(this), handleResults.bind(this));
