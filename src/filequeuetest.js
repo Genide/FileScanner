@@ -30,7 +30,6 @@ class FileQueue {
 			console.log('Add: ' + path);
 			// console.log(stats);
 			this.queueFile(path, 'new');
-			//console.log(this.watcher._watched);
 		});
 		
 		this.watcher.on('change', (path, stats) => {
@@ -85,10 +84,6 @@ class FileQueue {
 	}
 
 	dequeueFile (file) {
-		// var index = this.queue.indexOf(file);
-		// if (index >= 0) {
-		// 	this.queue.splice(index, 1);
-		// }
 		var searchObj = {
 			"filepath": file
 		};
