@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+// TODO: Consider writing my own request handlers using https
 var request = require('request');
 var crypto = require('crypto');
 
