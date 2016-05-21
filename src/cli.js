@@ -24,6 +24,13 @@ vorpal
 	});
 
 vorpal
+	.command('count', 'Print the number of files processed this interval')
+	.action((args, callback) => {
+		console.log(fileQueue.getProcessingCount());
+		callback();
+	});
+
+vorpal
 	.command('list', 'List all watched files')
 	.action((args, callback) => {
 		console.log(fileQueue.getWatchedFiles());
@@ -38,9 +45,9 @@ vorpal
 	});
 
 vorpal
-	.command('processing', 'List all processing files')
+	.command('next', 'List all the queued files that are getting priority')
 	.action((args, callback) => {
-		console.log(fileQueue.getProcessingFiles());
+		console.log(fileQueue.getNextIntervalQueuedFiles());
 		callback();
 	});
 

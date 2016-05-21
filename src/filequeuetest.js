@@ -11,21 +11,24 @@ class FileQueue {
 	constructor() {
 		// Create the file watcher
 		this.watcher = chokidar.watch('');
+		this._isSetup = false;
 		this.setupWatcher();
+		this._watching = false;
 
 		// Create the rest of the properties
 		this.queue = [];
+		this.nextIntervalQueue = [];
 		// this.watchedFiles = [];
-		this.processing = [];
 		this.processingCount = 0;
 		this.processed = [];
 		this.maxRequests = 4;
 		this.interval = 60 * 1000;
 		this.refreshIntervalID = null;
-		this.vtObj = new VirusTotal('apikey');
+		this.vtObj = new VirusTotal('62b0c389e1d05404efb1c13ab88da12e2d100783b8384267fb020a159b358b62');
 	}
 
 	setupWatcher () {
+		if (this._isSetup === true) return;
 		this.watcher.on('add', (path, stats) => {
 			console.log('Add: ' + path);
 			// console.log(stats);
@@ -43,12 +46,14 @@ class FileQueue {
 			console.log('Unlink: ' + path);
 			this.dequeueFile(path);
 		});
+		this._isSetup = true;
 	}
 
 	getWatchedFiles () { return this.watcher.getWatched(); }
 	getQueuedFiles () { return this.queue; }
-	getProcessingFiles () { return this.processing; }
+	getNextIntervalQueuedFiles () { return this.nextIntervalQueue; }
 	getProcessedFiles () { return this.processed; }
+	getProcessingCount () {return this.processingCount;}
 
 	watchFiles (files) {
 		// TODO: Refactor these lines into their own function
@@ -72,15 +77,53 @@ class FileQueue {
 
 	queueFile (file, status) {
 		// push file if file is not queued
-		var searchObj = {
+		var fileObj = {
 			"filepath": file,
 			"status": status
 		};
-		// TODO: Determine if i should find by filepath first
-		// then decide what to do based on the status
-		if (_.find(this.queue, searchObj) === undefined){
-			this.queue.push(searchObj);
-		}
+
+		if (this._watching && 
+			(this.processingCount < this.maxRequests) && 
+			(fileObj.status !== "reporting")) {
+			this.processFile(fileObj);
+		} else {
+			switch (fileObj.status) {
+				case "new":
+					// Remove from nextIntervalQueue 
+					// TODO: Actually remove from nextIntervalQueue. it currently doesn't work
+					var searchObj = {
+						"filepath": file
+					};
+					_.pullAllBy(this.nextIntervalQueue, [searchObj], "filepath");
+					// Remove from queue if status is anything other than new
+					var foundObj = _.find(this.queue, searchObj);
+					if (foundObj) {
+						if (foundObj.status !== "new"){
+							_.pullAllBy(this.queue, [searchObj], "filepath");
+							this.queue.push(fileObj);
+						}
+					} else {
+						this.queue.push(fileObj);
+					}
+					break;
+				case "scanning":
+					this.queue.push(fileObj);
+					break;
+				case "reporting":
+					this.nextIntervalQueue.push(fileObj);
+					break;
+			}
+		}		
+	}
+
+	queueNextIntervalFile (file, status) {
+		var fileObj = {
+			"filepath": file,
+			"status": status
+		};
+
+		// TODO: Identify cases
+		this.nextIntervalQueue.push(fileObj);
 	}
 
 	dequeueFile (file) {
@@ -88,31 +131,77 @@ class FileQueue {
 			"filepath": file
 		};
 		_.pullAllBy(this.queue, [searchObj], 'filepath');
+		_.pullAllBy(this.nextIntervalQueue, [searchObj], 'filepath');
 	}
 
-	handleResult (result) {
-		// TODO: It is worth keeping the filepath and status?
-		// Should I trust async.map to keep the result ordering?
-		switch (result.status) {
+	shiftQueue () {
+		if (this.nextIntervalQueue.length > 0) {
+			return this.nextIntervalQueue.shift();
+		} else {
+			return this.queue.shift();
+		}
+	}
+
+	handleWork (file, callback) {
+		switch (file.status) {
+			case 'new':
+			case 'reporting':
+				console.log(file.filepath);
+				async.waterfall([
+					function (cb) {
+						cb(null, file.filepath);
+					},
+					this.vtObj.hashFile,
+					this.vtObj.getFileScanReport
+				], callback);
+				break;
+			case 'scanning': 
+				this.vtObj.scanFile(file.filepath, callback);
+				break;
+			default:
+				callback (new Error('Unexpected file.action: ' + file.action));
+		}
+	}
+
+	handleResult (fileObj, result) {
+		switch (fileObj.status) {
 			case 'new':
 				if (result.response_code === 1) {
-					this.processed[result.filepath] = result;
+					this.processed[fileObj.filepath] = result;
 				} else {
-					this.queueFile(result.filepath, 'scanning');
+					this.queueFile(fileObj.filepath, 'scanning');
 				}
 				break;
 			case 'scanning':
 				if (result.response_code === 1) {
-					this.queueFile(result.filepath, 'reporting');
+					this.queueFile(fileObj.filepath, 'reporting');
 				}
 				break;
 			case 'reporting':
 				if (result.response_code === 1) {
-					this.processed[result.filepath] = result;
+					this.processed[fileObj.filepath] = result;
 				} else {
-					this.queueFile(result.filepath, 'reporting');
+					this.queueFile(fileObj.filepath, 'reporting');
 				}
 				break;
+		}
+	}
+
+	// Processes only one fileObj
+	processFile (fileObj) {
+		if (this.processingCount >= this.maxRequests) {
+			throw new Error('Too many processed');
+		} else {
+			this.processingCount++;
+			var callback = function (err, result) {
+				if (err) {
+					console.log(err.message);
+					this.queueNextIntervalFile(fileObj.filepath, fileObj.status);
+				} else {
+					this.handleResult(fileObj, result);
+				}
+			};
+			this.handleWork(fileObj, callback.bind(this));
 		}
 	}
 
@@ -120,67 +209,25 @@ class FileQueue {
 	// Move processing files to processed. Replace duplicate results
 	processNextFiles () {
 		console.log('processing');
-		//this.processed = _.concat(this.processed, this.processing);
 		this.processingCount = 0;
+		var processing = [];
+
 		for (var i = 0; i < this.maxRequests; i++) {
 			if (this.queue.length > 0) {
-				this.processing.push(this.queue.shift());
-				this.processingCount++;
+				processing.push(this.shiftQueue());
 			}
 		}
 
-		var handleWork = function (file, callback) {
-			switch (file.status) {
-				case 'new':
-				case 'reporting':
-					console.log(file.filepath);
-					async.waterfall([
-						function (cb) {
-							cb(null, file.filepath);
-						},
-						this.vtObj.hashFile,
-						this.vtObj.getFileScanReport,
-						function (result, cb) {
-							result.filepath = file.filepath;
-							result.status = file.status;
-							cb(null, result);
-						}
-					], callback);
-					break;
-				case 'scanning': 
-					async.waterfall([
-						function (cb) {
-							cb(null, file.filepath);
-						},
-						this.vtObj.scanFile,
-						function(result, cb) {
-							result.filepath = file.filepath;
-							result.status = file.status;
-							cb(null, result);
-						}
-					], callback);
-					break;
-				default:
-					callback (new Error('Unexpected file.action: ' + file.action));
-			}
-		};
-		var handleResults = function (err, results) {
-			if (err) {
-				console.log(err);
-				process.exit(1);
-			}
-			results.forEach(this.handleResult.bind(this));
-			this.processing = [];
-		};
-		async.map(this.processing, handleWork.bind(this), handleResults.bind(this));
+		processing.forEach(this.processFile.bind(this));
 	}
 
 	startWatch () {
-		if (this.refreshIntervalID === null || 
-			this.refreshIntervalID._idleTimeout === -1) {
+		if (this._watching === false) {
+			this.processNextFiles();
 			// http://stackoverflow.com/questions/20279484/how-to-access-the-correct-this-context-inside-a-callback
 			this.refreshIntervalID = setInterval(this.processNextFiles.bind(this), this.interval);
 			this.setupWatcher();
+			this._watching = true;
 		} else {
 			console.log('The watch has already begun');
 		}
@@ -190,6 +237,8 @@ class FileQueue {
 		clearInterval(this.refreshIntervalID);
 		// console.log(this.refreshIntervalID);
 		this.watcher.close();
+		this._watching = false;
+		this._isSetup = false;
 	}
 }
 
