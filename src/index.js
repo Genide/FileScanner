@@ -1,9 +1,10 @@
 var fs = require('fs');
 var path = require('path');
-// TODO: Consider writing my own request handlers using https
 var request = require('request');
 var crypto = require('crypto');
 
+
+// TODO: Change to the new class definition
 var VirusTotal = function (apiKey) {
 	this.apiKey = apiKey;
 	this.fileScanReportURL = 'https://www.virustotal.com/vtapi/v2/file/report';
