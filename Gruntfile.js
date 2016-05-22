@@ -1,22 +1,15 @@
 module.exports = function (grunt) {
-	require('load-grunt-tasks')(grunt); // npm install --save-dev load-grunt-tasks. required for grunt-shell
+	require('load-grunt-tasks')(grunt); // npm install --save-dev load-grunt-tasks.
 
 	var src = 'src/**/*.js';
 	var test = 'test/**/*.js';
 
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		// exec: {  //grunt-exec is not supported anymore
-		// 	test: 'node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- -c',
-		// 	clean: 'rm -rf ./coverage'
-		// },
 		shell: {
-			test: {
-				command: "node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- -c"				
-			},
-			clean: {
-				command: "rm -rf ./coverage"
-			}
+			test: "node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- -c",
+			clean: "rm -rf ./coverage",
+			update_doc: "git subtree push --prefix doc origin gh-pages"
 		},
 		jshint: {
 			src: src,
@@ -46,6 +39,17 @@ module.exports = function (grunt) {
 				tasks: ['jshint:Gruntfile']
 			}
 		},
+		jsdoc: {
+			doc: {
+				src: [src],
+				options: {
+					destination: 'doc/',
+					readme: "README.md",
+					template: 'node_modules/ink-docstrap/template',
+					configure: 'conf.json'
+				}
+			}
+		},
 		connect: {
 			server:{
 				options: {
@@ -59,12 +63,9 @@ module.exports = function (grunt) {
 		}
 	});
 
-	// grunt.loadNpmTasks('grunt-exec');
-	grunt.loadNpmTasks('grunt-contrib-watch');
-	grunt.loadNpmTasks('grunt-contrib-jshint');
-	grunt.loadNpmTasks('grunt-contrib-connect');
-
 	grunt.registerTask('test', ['jshint', 'shell:test']);
 	grunt.registerTask('clean', ['shell:clean']);
-	grunt.registerTask('default', ['test', 'connect', 'watch']);
+	grunt.registerTask('debug', ['test', 'connect', 'watch']);
+	grunt.registerTask('update_doc', ['shell:update_doc']);
+	grunt.registerTask('default', ['test', 'jsdoc:doc']);
 };
