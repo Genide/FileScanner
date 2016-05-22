@@ -39,18 +39,39 @@ var getRequest = (options, callback) => {
 	request.get(options, requestHandler);
 };
 
+/**
+ * The VirusTotal class.
+ * This class contains the URLs and methods needed to interact with the VirusTotal API.
+ */
 class VirusTotal {
+	/**
+	 * Create a VirusTotal object
+	 * @param {string} apiKey - The VirusTotal API key. If you do not provide a key, then any calls to the VirusTotal will not work.
+	 */
 	constructor (apiKey) {
+		/** @public */
 		this.apiKey = apiKey;
+		/** @public */
 		this.fileScanReportURL = 'https://www.virustotal.com/vtapi/v2/file/report';
+		/** @public */
 		this.urlScanReportURL = 'http://www.virustotal.com/vtapi/v2/url/report';
+		/** @public */
 		this.scanFileURL = 'https://www.virustotal.com/vtapi/v2/file/scan';
+		/** @public */
 		this.rescanFileURL = 'https://www.virustotal.com/vtapi/v2/file/rescan';
+		/** @public */
 		this.postCommentURL = 'https://www.virustotal.com/vtapi/v2/comments/put';
+		/** @public */
 		this.IPReportURL = 'http://www.virustotal.com/vtapi/v2/ip-address/report';
+		/** @public */
 		this.domainReportURL = 'http://www.virustotal.com/vtapi/v2/domain/report';
 	}
 
+	/**
+	 * This function is used get a file scan report.
+	 * @param  {string}   resourceID A md5/sha1/sha256 hash will retrieve the most recent report on a given sample. You may also specify a scan_id (sha256-timestamp as returned by the file upload API) to access a specific report. You can also specify a CSV list made up of a combination of hashes and scan_ids (up to 4 items with the standard request rate), this allows you to perform a batch request with one single call.
+	 * @param  {VirusTotal~requestCallback} callback   The callback that handles the VirusTotal response object
+	 */
 	getFileScanReport (resourceID, callback) {
 		var param = {
 			resource: resourceID,
@@ -156,5 +177,12 @@ class VirusTotal {
 		postRequest(options, callback);
 	}
 }
+
+/**
+ * This callback handles the VirusTotal response object.
+ * @callback VirusTotal~requestCallback
+ * @param {Error} error - The Error object
+ * @param {json} data - The VirusTotal json response object.
+ */
 
 module.exports = VirusTotal;
