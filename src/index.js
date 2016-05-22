@@ -104,7 +104,8 @@ class VirusTotal {
 	}
 
 	/**
-	 * This function is used to send a file for scanning. Note that the object returned using the callback is not the file scan result. The json object returns whether or not the file has been sucessfuly queued for scanning.
+	 * This function is used to send a file for scanning.
+	 * Note that the object returned using the callback is not the file scan result. The json object returned only tells whether or not the file has been sucessfully queued for scanning.
 	 * @param  {string}   filepath The filepath to the file you want VirusTotal to scan
 	 * @param  {VirusTotal~requestCallback} callback The callback that handles the VirusTotal json response object
 	 */
@@ -121,6 +122,12 @@ class VirusTotal {
 		postRequest(options, callback);
 	}
 
+	/**
+	 * This function is used to rescan a file.
+	 * Note that the object returned using the callback is not the file scan result. The json object returned only tells whether or not the file has been sucessfully queued for scanning.
+	 * @param  {string}   resourceID A MD5/SHA1/SHA256 hash will retrieve the most recent report on a given sample. You may also specify a scan_id (sha256-timestamp as returned by the file upload API) to access a specific report. You can also specify a CSV list made up of a combination of hashes and scan_ids (up to 4 items with the standard request rate), this allows you to perform a batch request with one single call.
+	 * @param  {VirusTotal~requestCallback} callback   The callback that handles the VirusTotal json response object
+	 */
 	rescanFileID (resourceID, callback) {
 		var param = {
 			resource: resourceID,
@@ -134,6 +141,11 @@ class VirusTotal {
 		postRequest(options, callback);
 	}
 
+	/**
+	 * This function will generate a resourceID to use. The hash is generated using SHA256.
+	 * @param  {string}   filepath The filepath to the file you want hash using SHA256
+	 * @param  {VirusTotal~hashCallback} callback The callback that handles the SHA256 hash
+	 */
 	hashFile (filepath, callback) {
 		var hash = crypto.createHash('SHA256');
 		var stream = fs.createReadStream(filepath);
@@ -194,5 +206,12 @@ class VirusTotal {
  * @param {Error} error - The Error object
  * @param {json} data - The VirusTotal json response object.
  */
+
+ /**
+  * This callback handles the generated hash.
+  * @callback VirusTotal~hashCallback
+  * @param {Error} error - The Error object
+  * @param {string} hash - The returned hash string
+  */
 
 module.exports = VirusTotal;
