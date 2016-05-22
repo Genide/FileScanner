@@ -34,7 +34,7 @@ class FileQueue {
 			// console.log(stats);
 			this.queueFile(path, 'new');
 		});
-		
+
 		this.watcher.on('change', (path, stats) => {
 			console.log('Change: ' + path);
 			// console.log(stats);
@@ -82,14 +82,14 @@ class FileQueue {
 			"status": status
 		};
 
-		if (this._watching && 
-			(this.processingCount < this.maxRequests) && 
+		if (this._watching &&
+			(this.processingCount < this.maxRequests) &&
 			(fileObj.status !== "reporting")) {
 			this.processFile(fileObj);
 		} else {
 			switch (fileObj.status) {
 				case "new":
-					// Remove from nextIntervalQueue 
+					// Remove from nextIntervalQueue
 					// TODO: Actually remove from nextIntervalQueue. it currently doesn't work
 					var searchObj = {
 						"filepath": file
@@ -113,7 +113,7 @@ class FileQueue {
 					this.nextIntervalQueue.push(fileObj);
 					break;
 			}
-		}		
+		}
 	}
 
 	queueNextIntervalFile (file, status) {
@@ -151,11 +151,11 @@ class FileQueue {
 					function (cb) {
 						cb(null, file.filepath);
 					},
-					this.vtObj.hashFile,
-					this.vtObj.getFileScanReport
+					this.vtObj.hashFile.bind(this.vtObj),
+					this.vtObj.getFileScanReport.bind(this.vtObj)
 				], callback);
 				break;
-			case 'scanning': 
+			case 'scanning':
 				this.vtObj.scanFile(file.filepath, callback);
 				break;
 			default:
