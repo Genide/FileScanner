@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>FileScanner Source: index.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.slate.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">FileScanner</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu ">
+					<li><a href="VirusTotal.html">VirusTotal</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+		<div class="col-sm-3 col-md-3">
+            <form class="navbar-form" role="search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: index.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript linenums">var fs = require('fs');
+var path = require('path');
+var request = require('request');
+var crypto = require('crypto');
+
+var postRequest = (options, callback) => {
+	var requestHandler = (err, res, body) => {
+		if (err) return callback(err);
+		if (res) {
+			if (res.statusCode === 200) {
+				return callback(null, JSON.parse(body));
+			} else if (res.statusCode === 204) {
+				return callback(new Error("Too many requests"));
+			} else {
+				return callback(err, JSON.parse(body));
+			}
+		}
+		return callback(new Error("Unknown problem occured"));
+	};
+
+	request.post(options, requestHandler);
+};
+
+var getRequest = (options, callback) => {
+	var requestHandler = (err, res, body) => {
+		if (err) return callback(err);
+		if (res) {
+			if (res.statusCode === 200) {
+				return callback(null, JSON.parse(body));
+			} else if (res.statusCode === 204) {
+				return callback(new Error("Too many requests"));
+			} else {
+				return callback(err, JSON.parse(body));
+			}
+		}
+		return callback(new Error("Unknown problem occured"));
+	};
+
+	request.get(options, requestHandler);
+};
+
+/**
+ * The VirusTotal class.
+ * This class contains the URLs and methods needed to interact with the VirusTotal API.
+ */
+class VirusTotal {
+	/**
+	 * Create a VirusTotal object
+	 * @param {string} apiKey - The VirusTotal API key. If you do not provide a key, then any calls to the VirusTotal will not work.
+	 */
+	constructor (apiKey) {
+		/** @public */
+		this.apiKey = apiKey;
+		/** @public */
+		this.fileScanReportURL = 'https://www.virustotal.com/vtapi/v2/file/report';
+		/** @public */
+		this.urlScanReportURL = 'http://www.virustotal.com/vtapi/v2/url/report';
+		/** @public */
+		this.scanFileURL = 'https://www.virustotal.com/vtapi/v2/file/scan';
+		/** @public */
+		this.rescanFileURL = 'https://www.virustotal.com/vtapi/v2/file/rescan';
+		/** @public */
+		this.postCommentURL = 'https://www.virustotal.com/vtapi/v2/comments/put';
+		/** @public */
+		this.IPReportURL = 'http://www.virustotal.com/vtapi/v2/ip-address/report';
+		/** @public */
+		this.domainReportURL = 'http://www.virustotal.com/vtapi/v2/domain/report';
+	}
+
+	/**
+	 * This function is used get a file scan report.
+	 * @param  {string}   resourceID A md5/sha1/sha256 hash will retrieve the most recent report on a given sample. You may also specify a scan_id (sha256-timestamp as returned by the file upload API) to access a specific report. You can also specify a CSV list made up of a combination of hashes and scan_ids (up to 4 items with the standard request rate), this allows you to perform a batch request with one single call.
+	 * @param  {VirusTotal~requestCallback} callback   The callback that handles the VirusTotal response object
+	 */
+	getFileScanReport (resourceID, callback) {
+		var param = {
+			resource: resourceID,
+			apikey: this.apiKey
+		};
+		var options = {
+			url: this.fileScanReportURL,
+			formData: param
+		};
+
+		postRequest(options, callback);
+	}
+
+	getUrlScanReport (url, callback) {
+		var param = {
+			resource: url,
+			apikey: this.apiKey
+		};
+		var options = {
+			url: this.urlScanReportURL,
+			formData: param
+		};
+
+		postRequest(options, callback);
+	}
+
+	scanFile (filepath, callback) {
+		var param = {
+			file: ("file", path.basename(filepath), fs.createReadStream(filepath)),
+			apikey: this.apiKey
+		};
+		var options = {
+			url: this.scanFileURL,
+			formData: param
+		};
+
+		postRequest(options, callback);
+	}
+
+	rescanFileID (resourceID, callback) {
+		var param = {
+			resource: resourceID,
+			apikey: this.apiKey
+		};
+		var options = {
+			url: this.rescanFileURL,
+			formData: param
+		};
+
+		postRequest(options, callback);
+	}
+
+	hashFile (filepath, callback) {
+		var hash = crypto.createHash('SHA256');
+		var stream = fs.createReadStream(filepath);
+
+		stream.on('data', (data) => {
+			hash.update(data);
+		});
+
+		stream.on('end', () => {
+			callback(null, hash.digest('hex'));
+		});
+	}
+
+	getIPReport (ip, callback) {
+		var param = {
+			ip: ip,
+			apikey: this.apiKey
+		};
+		var options = {
+			url: this.IPReportURL,
+			qs: param
+		};
+
+		getRequest(options, callback);
+	}
+
+	getDomainReport (domain, callback) {
+		var param = {
+			domain: domain,
+			apikey: this.apiKey
+		};
+		var options = {
+			url: this.domainReportURL,
+			qs: param
+		};
+
+		getRequest(options, callback);
+	}
+
+	postComment (resourceID, comment, callback) {
+		var param = {
+			resource: resourceID,
+			comment: comment,
+			apikey: this.apiKey
+		};
+		var options = {
+			url: this.postCommentURL,
+			formData: param
+		};
+
+		postRequest(options, callback);
+	}
+}
+
+/**
+ * This callback handles the VirusTotal response object.
+ * @callback VirusTotal~requestCallback
+ * @param {Error} error - The Error object
+ * @param {json} data - The VirusTotal json response object.
+ */
+
+module.exports = VirusTotal;
+</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+<div class="modal fade" id="searchResults">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Search results</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+<footer>
+
+
+	<span class="copyright">
+	DocStrap Copyright © 2012-2015 The contributors to the JSDoc3 and DocStrap projects.
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a>
+	
+		on Sun May 22nd 2016
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+<script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			var id = $( heading ).attr( "id" );
+			return id && id.replace(/\~/g, '-inner-').replace(/\./g, '-static-') || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		SearcherDisplay.init();
+	});
+</script>
+
+</body>
+</html>
