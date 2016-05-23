@@ -119,7 +119,10 @@ class VirusTotal {
 	 * @param {string} apiKey - The VirusTotal API key. If you do not provide a key, then any calls to the VirusTotal will not work.
 	 */
 	constructor (apiKey) {
-		/** @public */
+		/**
+		 * The VirusTotal API key.
+		 * @type {string}
+		 */
 		this.apiKey = apiKey;
 		this.fileScanReportURL = 'https://www.virustotal.com/vtapi/v2/file/report';
 		this.urlScanReportURL = 'http://www.virustotal.com/vtapi/v2/url/report';
