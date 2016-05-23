@@ -139,7 +139,7 @@ class VirusTotal {
 
 	/**
 	 * This function is used to get a file scan report.
-	 * @param  {string}   resourceID A md5/sha1/sha256 hash will retrieve the most recent report on a given sample. You may also specify a scan_id (sha256-timestamp as returned by the file upload API) to access a specific report. You can also specify a CSV list made up of a combination of hashes and scan_ids (up to 4 items with the standard request rate), this allows you to perform a batch request with one single call.
+	 * @param  {string}   resourceID A MD5/SHA1/SHA256 hash will retrieve the most recent report on a given sample. You may also specify a scan_id (sha256-timestamp as returned by the file upload API) to access a specific report. You can also specify a CSV list made up of a combination of hashes and scan_ids (up to 4 items with the standard request rate), this allows you to perform a batch request with one single call.
 	 * @param  {VirusTotal~requestCallback} callback   The callback that handles the VirusTotal json response object
 	 */
 	getFileScanReport (resourceID, callback) {
@@ -157,7 +157,7 @@ class VirusTotal {
 
 	/**
 	 * This function is used to get a url scan report.
-	 * @param  {string}   url      The url you wish to scan
+	 * @param  {string}   url A URL will retrieve the most recent report on the given URL. You may also specify a scan_id (sha256-timestamp as returned by the URL submission API) to access a specific report. At the same time, you can specify a CSV list made up of a combination of hashes and scan_ids so as to perform a batch request with one single call (up to 4 resources per call with the standard request rate). When sending multiples, the scan_ids or URLs must be separated by a new line character.
 	 * @param  {VirusTotal~requestCallback} callback The callback that handles the VirusTotal json response object
 	 */
 	getUrlScanReport (url, callback) {
@@ -195,7 +195,7 @@ class VirusTotal {
 	/**
 	 * This function is used to rescan a file.
 	 * Note that the object returned using the callback is not the file scan result. The json object returned only tells whether or not the file has been sucessfully queued for scanning.
-	 * @param  {string}   resourceID A MD5/SHA1/SHA256 hash will retrieve the most recent report on a given sample. You may also specify a scan_id (sha256-timestamp as returned by the file upload API) to access a specific report. You can also specify a CSV list made up of a combination of hashes and scan_ids (up to 4 items with the standard request rate), this allows you to perform a batch request with one single call.
+	 * @param  {string}   resourceID A MD5/SHA1/SHA256 hash. You can also specify a CSV list made up of a combination of any of the three allowed hashes (up to 25 items), this allows you to perform a batch request with one single call. Note that the file must already be present in the VirusTotal file store.
 	 * @param  {VirusTotal~requestCallback} callback   The callback that handles the VirusTotal json response object
 	 */
 	rescanFileID (resourceID, callback) {
@@ -229,6 +229,11 @@ class VirusTotal {
 		});
 	}
 
+	/**
+	 * This function is used to get an IP report.
+	 * @param  {string}   ip A valid IPv4 address in dotted quad notation, for the time being only IPv4 addresses are supported.
+	 * @param  {VirusTotal~requestCallback} callback The callback that handles the VirusTotal json response object
+	 */
 	getIPReport (ip, callback) {
 		var param = {
 			ip: ip,
@@ -242,6 +247,11 @@ class VirusTotal {
 		getRequest(options, callback);
 	}
 
+	/**
+	 * This function is used to get a domain report.
+	 * @param  {string}   domain  The domain you want to get a report on.
+	 * @param  {VirusTotal~requestCallback} callback The callback that handles the VirusTotal json response object
+	 */
 	getDomainReport (domain, callback) {
 		var param = {
 			domain: domain,
@@ -255,6 +265,12 @@ class VirusTotal {
 		getRequest(options, callback);
 	}
 
+	/**
+	 * This function posts a comment on a file report.
+	 * @param  {string}   resourceID Either a md5/sha1/sha256 hash of the file you want to review or the URL itself that you want to comment on.
+	 * @param  {string}   comment    The comment you want to post
+	 * @param  {VirusTotal~requestCallback} callback The callback that handles the VirusTotal json response object
+	 */
 	postComment (resourceID, comment, callback) {
 		var param = {
 			resource: resourceID,
