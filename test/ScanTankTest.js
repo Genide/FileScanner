@@ -10,7 +10,7 @@ describe('canary', () => {
 });
 
 describe('ScanTank', () => {
-  var scanTank = new ScanTank('test/files/results.txt');
+  var scanTank = new ScanTank('test/files/empty.txt');
 
   describe('addResult', () => {
     it('adding a new result', () => {

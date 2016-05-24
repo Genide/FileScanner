@@ -87,6 +87,7 @@ class ScanTank {
   _readStoredResults() {
     // TODO: Figure out what to do with a bad filepath
     // TODO: Figure out what to do with an undefined filepath
+    // TODO: Implement callback argument
     fs.readFile(this.scanPath, (err, data) => {
       if (err) throw err;
       this.scans = JSON.parse(data);
@@ -96,7 +97,9 @@ class ScanTank {
   /**
    * This function saves scan results that are currently in memory to the filepath that was used during the creation of the ScanTank object.
    */
-  saveResults() {
+  saveResults() { // TODO: Figure out how to test this.
+    // TODO: Should I give the ability to specify a particular file to save?
+    // TODO: Add callback as an argument
     fs.writeFile(this.scanPath, JSON.stringify(this.scans), (err) => {
       if (err) throw err;
     });
