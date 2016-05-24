@@ -66,6 +66,6 @@ module.exports = function (grunt) {
 	grunt.registerTask('test', ['jshint', 'shell:test']);
 	grunt.registerTask('clean', ['shell:clean']);
 	grunt.registerTask('debug', ['test', 'connect', 'watch']);
-	grunt.registerTask('update_doc', ['shell:update_doc']);
+	grunt.registerTask('update-doc', ['shell:update_doc']);
 	grunt.registerTask('default', ['test', 'jsdoc:doc']);
 };
