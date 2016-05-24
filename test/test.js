@@ -215,12 +215,12 @@ describe('hashFile', () => {
 
 	describe('Good hash', () => {
 		it('hashing empty.txt', (done) => {
-			virustotalObj.hashFile('test/empty.txt', 
+			virustotalObj.hashFile('test/files/empty.txt',
 				checkHashFactory('e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', done));
 		});
 
 		it('hashing a large file', (done) => {
-			virustotalObj.hashFile('test/large_file.txt', 
+			virustotalObj.hashFile('test/files/large_file.txt', 
 				checkHashFactory('6cf8b71a5a0ab928192bca8ddef58c505b69d151f12a8eba3ac1b1d1bccc274c', done));
 		});
 	});

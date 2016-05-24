@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>FileScanner Classes</title>
+	<title>FileScanner Source: ScanTank.js</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -58,103 +58,73 @@
 <div class="row">
 
 	
-	<div class="col-md-8">
+	<div class="col-md-12">
 	
 		<div id="main">
 			
 
-	<h1 class="page-title">Classes</h1>
+		<h1 class="page-title">Source: ScanTank.js</h1>
+    
 <section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript linenums">var fs = require('fs');
 
-<header>
-    
-        <h2>
-        
-        </h2>
-        
-    
-</header>
+/**
+ * This class holds all of the scan results.
+ */
+class ScanTank {
+  /**
+   * Call this with a filepath to load in saved results.
+   * @param  {string} filepath The filepath that holds the scan results.
+   */
+  constructor(filepath) {
+    this.scanPath = filepath;
+    this.scans = {};
+    this._readStoredResults();
+  }
 
+  _readStoredResults() {
+    // TODO: Figure out what to do with a bad filepath
+    // TODO: Figure out what to do with an undefined filepath
+    fs.readFile(this.scanPath, (err, data) => {
+      if (err) throw err;
+      this.scans = JSON.parse(data);
+    });
+  }
 
-<article>
-    <div class="container-overview">
-    
-        
+  /**
+   * This function saves scan results that are currently in memory to the filepath that was used during the creation of the ScanTank object.
+   */
+  saveResults() {
+    fs.writeFile(this.scanPath, JSON.stringify(this.scans), (err) => {
+      if (err) throw err;
+    });
+  }
 
-        
-<dl class="details">
-    
+  /**
+   * Add a scan result to the ScanTank
+   * @param {string} filepath The filepath of the file that was scanned.
+   * @param {JSON} result   The result object from VirusTotal
+   */
+  addResult(filepath, result) {
+    this.scans[filepath] = result;
+  }
 
-	
+  /**
+   * Retrieve a result from the ScanTank.
+   * @param  {string} filepath The filepath you want to get a VirusTotal scan result from.
+   */
+  getResult(filepath) {
+    return this.scans[filepath];
+  }
+}
 
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="ScanTank.html">ScanTank</a></dt>
-            <dd></dd>
-        
-            <dt><a href="VirusTotal.html">VirusTotal</a></dt>
-            <dd></dd>
-        </dl>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
+module.exports = ScanTank;
+</pre>
+    </article>
 </section>
+
 
 
 
@@ -164,10 +134,6 @@
 
 	<div class="clearfix"></div>
 
-	
-		<div class="col-md-3">
-			<div id="toc" class="col-md-3 hidden-xs hidden-sm hidden-md"></div>
-		</div>
 	
 
 </div>
