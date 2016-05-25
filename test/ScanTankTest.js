@@ -1,7 +1,7 @@
 var expect = require('chai').expect;
 var sinon = require('sinon');
 var ScanTank = require('../src/ScanTank.js');
-
+var fs = require('fs');
 
 describe('canary', () => {
   it('test', () => {
@@ -10,10 +10,9 @@ describe('canary', () => {
 });
 
 describe('ScanTank', () => {
-  var scanTank = new ScanTank('test/files/empty.txt');
-
   describe('addResult', () => {
     it('adding a new result', () => {
+      var scanTank = new ScanTank('test/files/empty.txt');
       scanTank.addResult('testfile.txt', {result: "bad"});
       expect(scanTank.scans).to.deep.equal({'testfile.txt': {result: 'bad'}});
     });
@@ -21,6 +20,8 @@ describe('ScanTank', () => {
 
   describe('getResult', () => {
     it('get a result', () => {
+      var scanTank = new ScanTank('test/files/results.txt');
+      scanTank.addResult('testfile.txt', {result: "bad"});
       expect(scanTank.getResult('testfile.txt')).to.deep.equal({result: 'bad'});
     });
   });

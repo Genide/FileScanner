@@ -7,14 +7,15 @@ class ScanTank {
   /**
    * Call this with a filepath to load in saved results.
    * @param  {string} filepath The filepath that holds the scan results.
+   * @param {function} callback The function you want to call after it finishes reading the results from the specified filepath
    */
-  constructor(filepath) {
+  constructor(filepath, callback) {
     this.scanPath = filepath;
     this.scans = {};
-    this._readStoredResults();
+    this._readStoredResults(callback);
   }
 
-  _readStoredResults() {
+  _readStoredResults(callback) {
     // TODO: Figure out what to do with a bad filepath
     // TODO: Figure out what to do with an undefined filepath
     // TODO: Implement callback argument
