@@ -42,6 +42,7 @@ class ScanTank {
   saveResults() { // TODO: Figure out how to test this.
     // TODO: Should I give the ability to specify a particular file to save?
     // TODO: Add callback as an argument
+    // TODO: Allow both synchronous and asynchronous saveResults
     fs.writeFile(this.scanPath, JSON.stringify(this.scans), (err) => {
       if (err) throw err;
     });
