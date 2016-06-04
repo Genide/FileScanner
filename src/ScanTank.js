@@ -7,7 +7,7 @@ class ScanTank {
   /**
    * Call this with a filepath to load in saved results.
    * @param  {string} filepath The filepath that holds the scan results.
-   * @param {function} callback The function you want to call after it finishes reading the results from the specified filepath
+   * @param {function} callback The function you want to call after it finishes reading the results from the specified filepath. If a callback is not specified, then this function becomes synchronous.
    */
   constructor(filepath, callback) {
     this.scanPath = filepath;
@@ -16,13 +16,24 @@ class ScanTank {
   }
 
   _readStoredResults(callback) {
-    // TODO: Figure out what to do with a bad filepath
-    // TODO: Figure out what to do with an undefined filepath
-    // TODO: Implement callback argument
-    fs.readFile(this.scanPath, (err, data) => {
-      if (err) throw err;
-      this.scans = JSON.parse(data);
-    });
+    if (typeof(callback) === "function") {
+      fs.readFile(this.scanPath, (err, data) => {
+        if (err) return callback(err);
+        try {
+          if (data.length > 0) this.scans = JSON.parse(data);
+        } catch (e) {
+          return callback(e);
+        }
+        return callback();
+      });
+    } else {
+      try {
+        var data = fs.readFileSync(this.scanPath);
+        if (data.length > 0) this.scans = JSON.parse(data);
+      } catch (e) {
+        throw e;
+      }
+    }
   }
 
   /**
@@ -42,6 +53,7 @@ class ScanTank {
    * @param {JSON} result   The result object from VirusTotal
    */
   addResult(filepath, result) {
+    // TODO: Determine if I should add filepath/result validation.
     this.scans[filepath] = result;
   }
 
