@@ -220,8 +220,8 @@ describe('hashFile', () => {
 		});
 
 		it('hashing a large file', (done) => {
-			virustotalObj.hashFile('test/files/large_file.txt', 
-				checkHashFactory('6cf8b71a5a0ab928192bca8ddef58c505b69d151f12a8eba3ac1b1d1bccc274c', done));
+			virustotalObj.hashFile('test/files/large_file.txt',
+				checkHashFactory('312b6e50a511a8cb8fe8d0d51a44be8591c003b63d51726aec1df632f1879b41', done));
 		});
 	});
 });
